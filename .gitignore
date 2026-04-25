@@ -44,6 +44,7 @@ server/.env
 CLAUDE\ 2.md
 bun\ 2.lock
 
-# Skills cache
+# Skills cache + Claude Code internal state
 .claude/skills/
+.claude/scheduled_tasks.lock
 skills-lock.json

@@ -3,5 +3,11 @@
   "framework": "vite",
   "installCommand": "bun install",
   "buildCommand": "bun run build",
-  "devCommand": "bun run dev --port $PORT"
+  "devCommand": "bun run dev --port $PORT",
+  "rewrites": [
+    { "source": "/marketplace", "destination": "/index.html" },
+    { "source": "/marketplace/:path*", "destination": "/index.html" },
+    { "source": "/auth", "destination": "/index.html" },
+    { "source": "/auth/:path*", "destination": "/index.html" }
+  ]
 }

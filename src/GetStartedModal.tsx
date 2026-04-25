@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { ClientPicker } from "./ClientPicker";
 import { InstallCmd } from "./InstallCmd";
 import { OPEN_MODAL_EVENT, type ClientId } from "./clients";
+import { GithubMark } from "./GithubMark";
 
 export function GetStartedModal() {
   const [open, setOpen] = useState(false);
@@ -106,12 +107,13 @@ export function GetStartedModal() {
             <span>free, self-hosted, MIT</span>
             <a
               className="btn btn-ghost"
-              href="https://github.com/code-highway-patrol/chp-web"
+              href="https://github.com/code-highway-patrol/chp"
               target="_blank"
               rel="noreferrer"
               onClick={() => setOpen(false)}
             >
-              View on GitHub →
+              <GithubMark size={14} className="gh-icon" />
+              View on GitHub
             </a>
           </div>
         </div>

@@ -1,9 +1,21 @@
 import { useEffect, useRef, useState } from "react";
 import { openGetStarted } from "./clients";
+import { cldFetch } from "./cloudinary/config";
+import { GithubMark } from "./GithubMark";
+
+const AI_LOGOS = [
+  { name: "Claude", url: cldFetch("https://www.google.com/s2/favicons?domain=claude.ai&sz=128") },
+  { name: "ChatGPT", url: cldFetch("https://www.google.com/s2/favicons?domain=openai.com&sz=128") },
+  { name: "Gemini", url: cldFetch("https://www.google.com/s2/favicons?domain=gemini.google.com&sz=128") },
+  { name: "Cursor", url: cldFetch("https://www.google.com/s2/favicons?domain=cursor.com&sz=128") },
+  { name: "Grok", url: cldFetch("https://www.google.com/s2/favicons?domain=x.ai&sz=128") },
+];
 
 export function CTA() {
   const ref = useRef<HTMLElement>(null);
+  const targetRef = useRef<HTMLDivElement>(null);
   const [chasing, setChasing] = useState(false);
+  const [logoIdx, setLogoIdx] = useState(0);
 
   useEffect(() => {
     const el = ref.current;
@@ -21,20 +33,43 @@ export function CTA() {
     return () => obs.disconnect();
   }, []);
 
+  useEffect(() => {
+    if (!chasing) return;
+    const el = targetRef.current;
+    if (!el) return;
+    const onIter = (e: AnimationEvent) => {
+      if (e.animationName === "cta-chase-run") {
+        setLogoIdx((i) => (i + 1) % AI_LOGOS.length);
+      }
+    };
+    el.addEventListener("animationiteration", onIter);
+    return () => el.removeEventListener("animationiteration", onIter);
+  }, [chasing]);
+
+  const current = AI_LOGOS[logoIdx];
+
   return (
     <section ref={ref} className="cta" id="cta">
       <div className={"cta-chase" + (chasing ? " is-chasing" : "")} aria-hidden>
-        <div className="cta-chase-claude">
-          <ClaudeSparkle />
+        <div className="cta-chase-target" ref={targetRef}>
+          <img
+            key={current.name}
+            className="cta-chase-logo"
+            src={current.url}
+            alt=""
+            width={32}
+            height={32}
+          />
         </div>
         <div className="cta-chase-car">
+          <span className="cta-chase-glow" aria-hidden />
+          <span className="cta-chase-trail" aria-hidden />
           <CopCar />
         </div>
       </div>
       <div className="wrap cta-inner">
         <div>
-          <span className="eyebrow">sixty seconds</span>
-          <h2 style={{ marginTop: 14 }}>
+          <h2>
             One check on every turn.
             <br />
             Keep main clean.
@@ -52,7 +87,7 @@ export function CTA() {
             agent you already use.
           </p>
         </div>
-        <div className="cta-actions">
+        <div className="cta-actions cta-actions-stack">
           <a
             className="btn btn-lg"
             href="#"
@@ -65,10 +100,11 @@ export function CTA() {
           </a>
           <a
             className="btn btn-ghost btn-lg"
-            href="https://github.com/code-highway-patrol/chp-web"
+            href="https://github.com/code-highway-patrol/chp"
             target="_blank"
             rel="noreferrer"
           >
+            <GithubMark size={16} className="gh-icon" />
             View on GitHub
           </a>
         </div>
@@ -77,63 +113,77 @@ export function CTA() {
   );
 }
 
-function ClaudeSparkle() {
-  return (
-    <svg width="22" height="22" viewBox="0 0 32 32" fill="none">
-      <path
-        d="M16 1.5
-           C16.7 9.4 16.7 9.4 24.6 10.1
-           C29.5 10.5 29.5 10.5 24.6 10.9
-           C16.7 11.6 16.7 11.6 16 19.5
-           C15.3 11.6 15.3 11.6 7.4 10.9
-           C2.5 10.5 2.5 10.5 7.4 10.1
-           C15.3 9.4 15.3 9.4 16 1.5 Z"
-        fill="#D97757"
-        stroke="#1a1612"
-        strokeWidth="1"
-        strokeLinejoin="round"
-      />
-      <path
-        d="M22 18
-           C22.4 22.5 22.4 22.5 26.9 22.9
-           C22.4 23.3 22.4 23.3 22 27.8
-           C21.6 23.3 21.6 23.3 17.1 22.9
-           C21.6 22.5 21.6 22.5 22 18 Z"
-        fill="#D97757"
-        stroke="#1a1612"
-        strokeWidth="0.8"
-        strokeLinejoin="round"
-      />
-    </svg>
-  );
-}
-
 function CopCar() {
   return (
-    <svg width="62" height="30" viewBox="0 0 84 40" fill="none">
-      <ellipse cx="42" cy="37" rx="38" ry="2" fill="#000" opacity="0.25" />
+    <svg width="84" height="40" viewBox="0 0 84 40" fill="none">
+      <ellipse cx="42" cy="38" rx="38" ry="1.8" fill="#000" opacity="0.4" />
       <rect
         x="6"
         y="4"
         width="72"
         height="32"
         rx="6"
-        fill="#161616"
-        stroke="#f5f5f5"
-        strokeWidth="0.8"
+        fill="#f7f5f1"
+        stroke="#0a0907"
+        strokeWidth="1.4"
       />
-      <rect x="6" y="18" width="72" height="4" fill="#f5f5f5" opacity="0.95" />
-      <path d="M12 8 L22 11 L22 29 L12 32 Z" fill="#3d4d5e" />
-      <path d="M72 8 L62 11 L62 29 L72 32 Z" fill="#3d4d5e" />
-      <rect x="32" y="12" width="20" height="16" rx="2" fill="#0a0a0a" />
-      <circle className="cta-light cta-light-red" cx="38" cy="20" r="3" fill="#ff2a3c" />
-      <circle className="cta-light cta-light-blue" cx="46" cy="20" r="3" fill="#2c66ff" />
-      <rect x="26" y="2" width="4" height="3" fill="#161616" />
-      <rect x="26" y="35" width="4" height="3" fill="#161616" />
-      <rect x="76" y="8" width="3" height="5" rx="1" fill="#fff5b0" />
-      <rect x="76" y="27" width="3" height="5" rx="1" fill="#fff5b0" />
-      <rect x="5" y="8" width="3" height="5" rx="1" fill="#a02020" />
-      <rect x="5" y="27" width="3" height="5" rx="1" fill="#a02020" />
+      <path
+        d="M62 4 L72 4 Q78 4 78 10 L78 30 Q78 36 72 36 L62 36 Z"
+        fill="#0d0a07"
+      />
+      <path
+        d="M22 4 L12 4 Q6 4 6 10 L6 30 Q6 36 12 36 L22 36 Z"
+        fill="#0d0a07"
+      />
+      <rect x="22" y="18" width="40" height="4" fill="#e89a3c" />
+      <path d="M62 8 L56 12 L56 28 L62 32 Z" fill="#2f3d4e" />
+      <path d="M22 8 L28 12 L28 28 L22 32 Z" fill="#2f3d4e" />
+      <line
+        x1="42"
+        y1="11"
+        x2="42"
+        y2="29"
+        stroke="#7a7368"
+        strokeWidth="0.6"
+        opacity="0.7"
+      />
+      <rect x="32" y="12" width="20" height="16" rx="2" fill="#050403" />
+      <circle
+        className="cta-light cta-light-red"
+        cx="38"
+        cy="20"
+        r="7"
+        fill="#ff2a3c"
+        opacity="0.32"
+      />
+      <circle
+        className="cta-light cta-light-red"
+        cx="38"
+        cy="20"
+        r="3.6"
+        fill="#ff5060"
+      />
+      <circle
+        className="cta-light cta-light-blue"
+        cx="46"
+        cy="20"
+        r="7"
+        fill="#2c66ff"
+        opacity="0.32"
+      />
+      <circle
+        className="cta-light cta-light-blue"
+        cx="46"
+        cy="20"
+        r="3.6"
+        fill="#5a8aff"
+      />
+      <rect x="54" y="1.5" width="4" height="3.5" rx="0.6" fill="#0d0a07" />
+      <rect x="54" y="35" width="4" height="3.5" rx="0.6" fill="#0d0a07" />
+      <rect x="76" y="9" width="2.5" height="4" rx="0.8" fill="#fff5b0" />
+      <rect x="76" y="27" width="2.5" height="4" rx="0.8" fill="#fff5b0" />
+      <rect x="5.5" y="9" width="2.5" height="4" rx="0.8" fill="#a02020" />
+      <rect x="5.5" y="27" width="2.5" height="4" rx="0.8" fill="#a02020" />
     </svg>
   );
 }

@@ -3,7 +3,6 @@ import { Hero } from "./Hero";
 import { ScrollScene } from "./ScrollScene";
 import { HowItWorks } from "./HowItWorks";
 import { Features } from "./Features";
-import { Stats } from "./Stats";
 import { Compare } from "./Compare";
 import { CTA } from "./CTA";
 import { Footer } from "./Footer";
@@ -17,7 +16,6 @@ export default function App() {
       <ScrollScene />
       <HowItWorks />
       <Features />
-      <Stats />
       <Compare />
       <CTA />
       <Footer />

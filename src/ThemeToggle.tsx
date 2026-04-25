@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
 
-type Theme = "light" | "dark" | "system";
+type Theme = "light" | "dark";
 
 function readStored(): Theme {
-  if (typeof document === "undefined") return "system";
+  if (typeof document === "undefined") return "light";
   const stored = localStorage.getItem("chp-theme");
-  return stored === "light" || stored === "dark" ? stored : "system";
+  return stored === "dark" ? "dark" : "light";
 }
 
 export function ThemeToggle() {
@@ -14,23 +14,15 @@ export function ThemeToggle() {
   useEffect(() => {
     const body = document.body;
     body.classList.remove("light", "dark");
-    if (theme === "light") body.classList.add("light");
-    if (theme === "dark") body.classList.add("dark");
-    if (theme === "system") localStorage.removeItem("chp-theme");
-    else localStorage.setItem("chp-theme", theme);
+    body.classList.add(theme);
+    localStorage.setItem("chp-theme", theme);
   }, [theme]);
-
-  const isDark =
-    theme === "dark" ||
-    (theme === "system" &&
-      typeof window !== "undefined" &&
-      window.matchMedia("(prefers-color-scheme: dark)").matches);
 
   return (
     <button
       className="theme-toggle"
       aria-label="Toggle theme"
-      onClick={() => setTheme(isDark ? "light" : "dark")}
+      onClick={() => setTheme(theme === "dark" ? "light" : "dark")}
     >
       <svg className="moon" width="16" height="16" viewBox="0 0 16 16" fill="none">
         <path

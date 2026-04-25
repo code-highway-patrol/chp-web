@@ -20,9 +20,8 @@ export function Hero() {
             of your codebase.
           </h1>
           <p className="lede">
-            CHP rides shotgun on every agent turn, enforcing consistency at
-            both the programmatic and agentic level so what ships is
-            production-ready: cleaner diffs, easier to follow, easier to debug.
+            CHP enforces your codebase rules on every agent turn with
+            heuristic and programmatic checks at the line.
           </p>
 
           <div className="install">
@@ -32,20 +31,6 @@ export function Hero() {
             </div>
           </div>
 
-          <div className="hero-meta">
-            <div className="meta-cell">
-              <div className="meta-num">~340ms</div>
-              <div className="meta-lbl">avg. turn check</div>
-            </div>
-            <div className="meta-cell">
-              <div className="meta-num">11×</div>
-              <div className="meta-lbl">cheaper than structured coding tools</div>
-            </div>
-            <div className="meta-cell">
-              <div className="meta-num">0-config</div>
-              <div className="meta-lbl">drop-in agent hook</div>
-            </div>
-          </div>
         </div>
         <div>
           <Cuffs />

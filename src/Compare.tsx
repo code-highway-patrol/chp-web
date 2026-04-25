@@ -32,18 +32,6 @@ export function Compare() {
             </div>
           ))}
         </div>
-        <p
-          style={{
-            fontFamily: "var(--mono)",
-            fontSize: 11,
-            color: "var(--ink-3)",
-            letterSpacing: "0.06em",
-            marginTop: 14,
-            textTransform: "uppercase",
-          }}
-        >
-          benchmarks · 312 real-world turns · monorepo · q1 2026
-        </p>
       </div>
     </section>
   );

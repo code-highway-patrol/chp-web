@@ -1,4 +1,5 @@
 import { BadgeLogo } from "./BadgeLogo";
+import { GithubMark } from "./GithubMark";
 
 export function Footer() {
   return (
@@ -9,7 +10,7 @@ export function Footer() {
       >
         <a
           className="brand"
-          href="https://github.com/code-highway-patrol/chp-web"
+          href="https://github.com/code-highway-patrol/chp"
           target="_blank"
           rel="noreferrer"
         >
@@ -50,12 +51,20 @@ export function Footer() {
         </div>
         <div style={{ display: "flex", gap: 24, alignItems: "center" }}>
           <a
-            href="https://github.com/code-highway-patrol/chp-web"
+            href="https://github.com/code-highway-patrol/chp"
             target="_blank"
             rel="noreferrer"
-            style={{ color: "var(--ink-2)", fontSize: 13 }}
+            aria-label="GitHub"
+            style={{
+              color: "var(--ink-2)",
+              fontSize: 13,
+              display: "inline-flex",
+              alignItems: "center",
+              gap: 6,
+            }}
           >
-            GitHub →
+            <GithubMark size={14} />
+            GitHub
           </a>
           <span style={{ color: "var(--ink-3)", fontSize: 12 }}>MIT</span>
         </div>

@@ -6,22 +6,114 @@ import {
 } from "@chenglou/pretext";
 
 const FONT = '13px "Geist Mono", ui-monospace, Menlo, monospace';
-const ROWS = 22;
-const COLS = 64;
 const CANDIDATE_CHARS = " .,-_~:;!=+*#%@&$";
 
-const K1 = COLS * 0.55;
-const K2 = 5;
+// Hand-authored handcuff art. Each meta-char is a brightness level looked up
+// in BRIGHTNESS_MAP and run through the donut.c-style ramp at render time, so
+// the final output is a luminance-matched ASCII rendering of a fixed silhouette.
+//
+//   ' ' empty   '.' faint   '-' dim   '~' soft   '+' medium
+//   '*' bright  '#' strong  '$' near-max  '@' max
+//
+// Top: closed ring + lock body. Middle: 6 chain links. Bottom: small lock body
+// + asymmetric swing-arm hook that curves down-left, around, and ends in teeth.
+const ART = [
+  "                                ",
+  "                                ",
+  "          ~=#$@$$$@$#=~         ",
+  "        +$@$#+~   ~+#$@$+       ",
+  "      +$@$+         +$@$+       ",
+  "     *@%               %@*      ",
+  "    *@%                 %@*     ",
+  "    $@                   @$     ",
+  "    $@                   @$     ",
+  "    $@                   @$     ",
+  "    *@%                 %@*     ",
+  "     *@%               %@*      ",
+  "      +$@$+         +$@$+       ",
+  "        +$@$#+~   ~+#$@$+       ",
+  "          ~=#$@$$$@$#=~         ",
+  "                                ",
+  "          $$$$$$$$$$$$$         ",
+  "          $@@@-:O:-@@@$         ",
+  "          $@@@@@@@@@@@$         ",
+  "          $$$$$$$$$$$$$         ",
+  "                                ",
+  "                $               ",
+  "               $@$              ",
+  "                $               ",
+  "             =$$@@$$=           ",
+  "                $               ",
+  "               $@$              ",
+  "                $               ",
+  "             =$$@@$$=           ",
+  "                $               ",
+  "               $@$              ",
+  "                $               ",
+  "             =$$@@$$=           ",
+  "                                ",
+  "            ~$$$$$$$~           ",
+  "            $@@:O:@@$           ",
+  "            $@@@@@@@$           ",
+  "            ~$$$$$$$~           ",
+  "            $@%~                ",
+  "           $@%                  ",
+  "          $@%                   ",
+  "         $@%                    ",
+  "         $@%                    ",
+  "         $@%                    ",
+  "          %@%                   ",
+  "           %@%~                 ",
+  "             ~%@%~              ",
+  "                ~%@%~ww         ",
+  "                    ~%@$ww      ",
+  "                                ",
+  "                                ",
+];
 
-// World ↔ grid mapping. We render in world space then project with the same K1/K2
-// the donut.c renderer used so the chain particles share the same coordinate system.
-function projectX(wx: number): number {
-  return ((COLS / 2 + (K1 / K2) * wx) | 0);
-}
-function projectY(wy: number): number {
-  // Y stretch keeps the cuff a tall vertical C, not a flat saucer.
-  return ((ROWS / 2 - (K1 / K2) * wy) | 0);
-}
+const ROWS = ART.length;
+const COLS = ART[0].length;
+
+const BRIGHTNESS_MAP: Record<string, number> = {
+  " ": 0,
+  ".": 0.18,
+  "-": 0.30,
+  "~": 0.36,
+  ":": 0.42,
+  "=": 0.48,
+  "+": 0.54,
+  "*": 0.62,
+  "%": 0.70,
+  "#": 0.78,
+  "$": 0.88,
+  "@": 1.0,
+  // Detail chars rendered literally as themselves (force their own brightness):
+  O: 0.55,
+  w: 0.55,
+};
+
+const LITERAL_CHARS = new Set(["O", "w"]);
+
+// CSS rotates the rendered art by -50°. Mouse events arrive in screen space,
+// so to find which cell the cursor sits over we rotate the cursor by +50°
+// around the art's visual center to recover unrotated cell coords.
+const ROTATION_DEG = -50;
+const INV_ROTATION_RAD = (-ROTATION_DEG * Math.PI) / 180;
+
+// Approximate cell pixel size at 13px Geist Mono with line-height 14px.
+// Used only for the inverse mapping; small inaccuracies are fine since
+// repulsion is radial and forgiving.
+const CELL_W = 7.5;
+const CELL_H = 14;
+
+// Smash-physics tuning. Weak spring + low damping lets particles keep flying
+// after the cursor pushes them; strong repulsion gives the initial blast.
+// MAX_V caps runaway velocity for particles deep inside the kernel.
+const SPRING_K = 6;
+const DAMP = 2.6;
+const REPULSE_RADIUS_CELLS = 10;
+const REPULSE_K = 230;
+const MAX_V = 32;
 
 let bCanvas: HTMLCanvasElement | null = null;
 let bCtx: CanvasRenderingContext2D | null = null;
@@ -66,114 +158,6 @@ function pickChar(ramp: RampEntry[], lum: number): string {
   return ramp[idx].ch;
 }
 
-function splat(
-  field: Float32Array,
-  W: number,
-  H: number,
-  xp: number,
-  yp: number,
-  intensity: number,
-): void {
-  for (let dy = -1; dy <= 1; dy++) {
-    for (let dx = -1; dx <= 1; dx++) {
-      const x = xp + dx;
-      const y = yp + dy;
-      if (x < 0 || x >= W || y < 0 || y >= H) continue;
-      const w = dx === 0 && dy === 0 ? 1.0 : dx === 0 || dy === 0 ? 0.55 : 0.32;
-      const idx = y * W + x;
-      field[idx] = Math.min(1, field[idx] + intensity * w);
-    }
-  }
-}
-
-// Paint an upright elliptical ring (cuff outline) into the brightness field.
-// Tall aspect: Rb (vertical radius) > Ra (horizontal radius) → tall vertical C.
-// Tube thickness given by inner/outer ellipse pair, sampled radially.
-function paintRingOutline(
-  field: Float32Array,
-  cx: number,
-  cy: number,
-  Ra: number,
-  Rb: number,
-  thickness: number,
-  phiStart: number,
-  phiEnd: number,
-  intensity: number,
-): void {
-  const angularSamples = 360;
-  const radialSamples = 5; // outer-to-inner samples for tube thickness
-  const span = phiEnd - phiStart;
-  for (let i = 0; i <= angularSamples; i++) {
-    const phi = phiStart + span * (i / angularSamples);
-    const cp = Math.cos(phi);
-    const sp = Math.sin(phi);
-    for (let j = 0; j < radialSamples; j++) {
-      const t = j / (radialSamples - 1); // 0 = outer, 1 = inner
-      const r = 1 - t * (thickness / Math.max(Ra, Rb));
-      const wx = cx + r * Ra * cp;
-      const wy = cy + r * Rb * sp;
-      // Shading: brighter on outside ring, dimmer on inside (suggests 3D tube).
-      const lum = intensity * (0.55 + 0.45 * (1 - t));
-      const xp = projectX(wx);
-      const yp = projectY(wy);
-      splat(field, COLS, ROWS, xp, yp, lum);
-    }
-  }
-}
-
-const CUFF_RA = 0.42; // horizontal half-width
-const CUFF_RB = 1.05; // vertical half-height (taller than wide → upright C)
-const CUFF_THICKNESS = 0.28; // tube thickness in world units
-const CUFF_X = 1.55;
-
-// Left cuff opens RIGHT (chain side): skip phi near 0 (the +x of its local frame).
-const LEFT_PHI = [Math.PI * 0.30, Math.PI * 1.70] as const;
-// Right cuff opens LEFT: skip phi near π.
-const RIGHT_PHI = [-Math.PI * 0.70, Math.PI * 0.70] as const;
-
-type Particle = {
-  x: number;
-  y: number;
-  rx: number;
-  ry: number;
-  vx: number;
-  vy: number;
-  weight: number;
-};
-
-const CHAIN_LINKS = 5;
-const PARTICLES_PER_LINK = 14;
-const CHAIN_X_RANGE = 1.0;
-
-function makeChainParticles(): Particle[] {
-  const particles: Particle[] = [];
-  for (let i = 0; i < CHAIN_LINKS; i++) {
-    const t = (i + 1) / (CHAIN_LINKS + 1);
-    const cx = -CHAIN_X_RANGE + t * 2 * CHAIN_X_RANGE;
-    const linkRadius = 0.13;
-    for (let j = 0; j < PARTICLES_PER_LINK; j++) {
-      const angle = (j / PARTICLES_PER_LINK) * Math.PI * 2;
-      const px = cx + Math.cos(angle) * linkRadius;
-      const py = Math.sin(angle) * linkRadius * 0.6;
-      particles.push({
-        x: px,
-        y: py,
-        rx: px,
-        ry: py,
-        vx: 0,
-        vy: 0,
-        weight: 0.95,
-      });
-    }
-  }
-  return particles;
-}
-
-const SPRING_K = 14;
-const DAMP = 3.4;
-const REPULSE_STRENGTH = 4.2;
-const REPULSE_RANGE = 1.6;
-
 function pretextRoundTrip(rawRow: string, font: string, maxWidth: number): string {
   if (!rawRow.trim()) return rawRow;
   const prepared = prepareWithSegments(rawRow, font, { whiteSpace: "pre-wrap" });
@@ -186,16 +170,55 @@ function pretextRoundTrip(rawRow: string, font: string, maxWidth: number): strin
   return materialized || rawRow;
 }
 
+type Particle = {
+  rx: number;
+  ry: number;
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  intensity: number;
+  literal: string | null;
+  phase: number;
+};
+
+function makeParticles(): Particle[] {
+  const particles: Particle[] = [];
+  for (let y = 0; y < ROWS; y++) {
+    const row = ART[y];
+    for (let x = 0; x < COLS; x++) {
+      const ch = row[x] ?? " ";
+      if (ch === " ") continue;
+      const literal = LITERAL_CHARS.has(ch);
+      const intensity = BRIGHTNESS_MAP[ch] ?? 0;
+      if (intensity <= 0) continue;
+      particles.push({
+        rx: x,
+        ry: y,
+        x,
+        y,
+        vx: 0,
+        vy: 0,
+        intensity,
+        literal: literal ? ch : null,
+        // Random phase so the brightness shuffle isn't synchronized.
+        phase: Math.random() * Math.PI * 2,
+      });
+    }
+  }
+  return particles;
+}
+
 export function Cuffs() {
   const [ramp, setRamp] = useState<RampEntry[]>([]);
   const [rows, setRows] = useState<string[]>([]);
   const cardRef = useRef<HTMLDivElement>(null);
+  const artRef = useRef<HTMLDivElement>(null);
   const stateRef = useRef({
-    sep: 0,
     hoverActive: false,
-    mouseWX: 0,
-    mouseWY: 0,
-    particles: makeChainParticles(),
+    mouseX: 0,
+    mouseY: 0,
+    particles: makeParticles(),
   });
 
   useEffect(() => {
@@ -213,62 +236,61 @@ export function Cuffs() {
       last = now;
       const st = stateRef.current;
 
-      const hovering = st.hoverActive;
-      const mouseInChain =
-        hovering &&
-        Math.abs(st.mouseWX) < CHAIN_X_RANGE + 0.3 &&
-        Math.abs(st.mouseWY) < 0.45;
-      st.sep += ((mouseInChain ? 0.15 : 0) - st.sep) * Math.min(1, dt * 4);
-
       for (const p of st.particles) {
         let fx = (p.rx - p.x) * SPRING_K - p.vx * DAMP;
         let fy = (p.ry - p.y) * SPRING_K - p.vy * DAMP;
-        if (hovering) {
-          const dx = p.x - st.mouseWX;
-          const dy = p.y - st.mouseWY;
-          const d2 = dx * dx + dy * dy + 0.05;
-          if (d2 < REPULSE_RANGE * REPULSE_RANGE) {
-            const mult = mouseInChain ? 2.4 : 0.45;
-            const forceMag = (REPULSE_STRENGTH * mult) / d2;
-            fx += dx * forceMag;
-            fy += dy * forceMag;
+        if (st.hoverActive) {
+          const dx = p.x - st.mouseX;
+          const dy = p.y - st.mouseY;
+          const d2 = dx * dx + dy * dy + 0.6;
+          if (d2 < REPULSE_RADIUS_CELLS * REPULSE_RADIUS_CELLS) {
+            const f = REPULSE_K / d2;
+            fx += dx * f;
+            fy += dy * f;
           }
         }
         p.vx += fx * dt;
         p.vy += fy * dt;
+        // Cap velocity so particles deep inside the kernel don't tunnel through
+        // the grid in one frame.
+        const v = Math.hypot(p.vx, p.vy);
+        if (v > MAX_V) {
+          p.vx *= MAX_V / v;
+          p.vy *= MAX_V / v;
+        }
         p.x += p.vx * dt;
         p.y += p.vy * dt;
       }
 
-      const field = new Float32Array(COLS * ROWS);
-      paintRingOutline(
-        field,
-        -CUFF_X - st.sep, 0,
-        CUFF_RA, CUFF_RB, CUFF_THICKNESS,
-        LEFT_PHI[0], LEFT_PHI[1],
-        1,
-      );
-      paintRingOutline(
-        field,
-        CUFF_X + st.sep, 0,
-        CUFF_RA, CUFF_RB, CUFF_THICKNESS,
-        RIGHT_PHI[0], RIGHT_PHI[1],
-        1,
-      );
-
+      const field = new Float32Array(ROWS * COLS);
+      const literalGrid: (string | null)[] = new Array(ROWS * COLS).fill(null);
+      const tSec = now / 1000;
       for (const p of st.particles) {
-        const xp = projectX(p.x);
-        const yp = projectY(p.y);
+        const cx = Math.round(p.x);
+        const cy = Math.round(p.y);
+        if (cx < 0 || cx >= COLS || cy < 0 || cy >= ROWS) continue;
+        const idx = cy * COLS + cx;
+        // Far-from-rest particles render dimmer — reads as "breaking off"
+        // instead of just relocating intact. Recovers as the particle springs
+        // back toward its rest cell.
         const drift = Math.hypot(p.x - p.rx, p.y - p.ry);
-        const weight = p.weight * Math.max(0.25, 1 - drift * 0.5);
-        splat(field, COLS, ROWS, xp, yp, weight);
+        const fade = Math.max(0.35, 1 - drift * 0.07);
+        // Idle shuffle: small per-particle brightness oscillation. With the
+        // ramp's quantization, ±~7% jitter is enough for chars to occasionally
+        // swap with their ramp neighbors → the cuffs look alive at rest.
+        const shuffle = 1 + 0.075 * Math.sin(tSec * 1.2 + p.phase);
+        field[idx] = Math.min(1, field[idx] + p.intensity * fade * shuffle);
+        if (p.literal && literalGrid[idx] === null) literalGrid[idx] = p.literal;
       }
 
       const raw: string[] = [];
       for (let y = 0; y < ROWS; y++) {
         let row = "";
         for (let x = 0; x < COLS; x++) {
-          row += pickChar(ramp, field[y * COLS + x]);
+          const idx = y * COLS + x;
+          const lit = literalGrid[idx];
+          if (lit) row += lit;
+          else row += pickChar(ramp, field[idx]);
         }
         raw.push(row);
       }
@@ -281,24 +303,25 @@ export function Cuffs() {
   }, [ramp]);
 
   const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
-    const card = cardRef.current;
-    if (!card) return;
-    const rect = card.getBoundingClientRect();
-    const localX = e.clientX - rect.left;
-    const localY = e.clientY - rect.top;
-    const art = card.querySelector(".cuffs-art") as HTMLElement | null;
+    const art = artRef.current;
     if (!art) return;
-    const artRect = art.getBoundingClientRect();
-    const u = (e.clientX - artRect.left) / artRect.width;
-    const v = (e.clientY - artRect.top) / artRect.height;
-    const halfWX = ((COLS / 2) / (K1 / K2));
-    const halfWY = ((ROWS / 2) / (K1 / K2));
-    const wx = (u - 0.5) * 2 * halfWX;
-    const wy = -(v - 0.5) * 2 * halfWY;
+    // Rotation pivots the un-rotated content around its visual center; the
+    // bounding box of the rotated element is centered on the same point.
+    const rect = art.getBoundingClientRect();
+    const cx = rect.left + rect.width / 2;
+    const cy = rect.top + rect.height / 2;
+    const dx = e.clientX - cx;
+    const dy = e.clientY - cy;
+    const ca = Math.cos(INV_ROTATION_RAD);
+    const sa = Math.sin(INV_ROTATION_RAD);
+    const rdx = dx * ca - dy * sa;
+    const rdy = dx * sa + dy * ca;
+    const cellX = rdx / CELL_W + COLS / 2;
+    const cellY = rdy / CELL_H + ROWS / 2;
     const st = stateRef.current;
-    st.mouseWX = wx;
-    st.mouseWY = wy;
-    st.hoverActive = localX >= 0 && localY >= 0 && localX <= rect.width && localY <= rect.height;
+    st.mouseX = cellX;
+    st.mouseY = cellY;
+    st.hoverActive = true;
   };
 
   const onLeave = () => {
@@ -312,7 +335,24 @@ export function Cuffs() {
       onMouseMove={onMove}
       onMouseLeave={onLeave}
     >
-      <div className="cuffs-art" aria-hidden="true">
+      <div className="cuffs-hint" aria-hidden="true">
+        <span>hover me</span>
+        <svg
+          className="cuffs-hint-arrow"
+          width="86"
+          height="58"
+          viewBox="0 0 86 58"
+          fill="none"
+          stroke="currentColor"
+          strokeWidth="1.6"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+        >
+          <path d="M 4 50 Q 38 56 56 40 Q 70 30 72 10" />
+          <path d="M 64 18 L 72 10 L 80 18" />
+        </svg>
+      </div>
+      <div className="cuffs-art" ref={artRef} aria-hidden="true">
         {rows.map((row, i) => (
           <div className="cuffs-row" key={i}>
             {row}

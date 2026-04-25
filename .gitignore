@@ -31,3 +31,19 @@ server/.env
 *.sw?
 .vercel
 .env*.local
+
+# Local screenshots and Playwright artifacts
+.playwright-mcp/
+*.jpeg
+*.jpg
+*.png
+!public/**/*.png
+!public/**/*.jpg
+
+# Editor / system duplicates
+CLAUDE\ 2.md
+bun\ 2.lock
+
+# Skills cache
+.claude/skills/
+skills-lock.json

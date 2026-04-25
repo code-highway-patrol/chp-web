@@ -11,8 +11,18 @@
       rel="stylesheet"
       href="https://fonts.googleapis.com/css2?family=Inter+Tight:wght@400;500;600;700&family=Geist+Mono:wght@400;500;600&family=Caveat:wght@500;600&display=swap"
     />
+    <script>
+      (function () {
+        var t = localStorage.getItem("chp-theme") === "dark" ? "dark" : "light";
+        document.documentElement.dataset.theme = t;
+      })();
+    </script>
   </head>
-  <body>
+  <body class="light">
+    <script>
+      document.body.classList.remove("light", "dark");
+      document.body.classList.add(document.documentElement.dataset.theme || "light");
+    </script>
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>

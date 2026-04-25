@@ -1,6 +1,14 @@
 import { useEffect, useRef, useState, type ReactNode } from "react";
 
 type Feat = { tag: string; title: string; body: string; icon: ReactNode };
+type Stat = { num: string; unit: string; lbl: string };
+
+const STATS: Stat[] = [
+  { num: "94.2", unit: "%", lbl: "turn pass rate" },
+  { num: "$0.004", unit: "/turn", lbl: "avg. token cost" },
+  { num: "2.1M", unit: "", lbl: "turns checked" },
+  { num: "37", unit: "", lbl: "checkpoints supported" },
+];
 
 const ICON = {
   width: 22,
@@ -115,7 +123,15 @@ export function Features() {
       <div className="wrap">
         <div className="s-head">
           <div className="kicker">features</div>
-          <h2>Six things CHP does that a coding agent will not do alone.</h2>
+          <div>
+            <h2>Six things CHP does that a coding agent will not do alone.</h2>
+            <p className="s-sub">
+              Most teams already document their conventions in AGENTS.md or a
+              skill, but those documents only describe the rules. No
+              programmatic check verifies the agent actually followed them on
+              any given turn — that is what CHP runs, on every turn.
+            </p>
+          </div>
         </div>
 
         <ul className="feats" aria-label="Features">
@@ -135,6 +151,18 @@ export function Features() {
             </li>
           ))}
         </ul>
+
+        <div className="roster roster-attached">
+          {STATS.map((s) => (
+            <div className="roster-cell" key={s.lbl}>
+              <div className="num">
+                {s.num}
+                <span className="unit">{s.unit}</span>
+              </div>
+              <div className="lbl">{s.lbl}</div>
+            </div>
+          ))}
+        </div>
       </div>
     </section>
   );

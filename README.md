@@ -1,47 +1,89 @@
-# chp-scaffold
+<h1 align="center">🚦 chp-web</h1>
 
-A Cloudinary React + Vite + TypeScript project scaffolded with [create-cloudinary-react](https://github.com/cloudinary-devs/create-cloudinary-react).
+<p align="center"><i>Marketing site for Code Highway Patrol.</i></p>
 
-## Prerequisites
+<p align="center">
+  <img src="https://img.shields.io/badge/license-MIT-F2C94C?style=for-the-badge" alt="MIT License" />
+  <img src="https://img.shields.io/badge/status-public%20beta-3FB950?style=for-the-badge" alt="Status" />
+  <img src="https://img.shields.io/badge/built%20at-LA%20Hacks%202026-1F6FEB?style=for-the-badge" alt="LA Hacks 2026" />
+</p>
 
-- **Node.js** — use a current LTS release. Supported ranges are listed under `engines` in this `package.json`.
+###
 
-## Quick Start
+<p align="center">
+  <img src=".github/preview.png" alt="Code Highway Patrol landing page" width="900" />
+</p>
+
+###
+
+<div align="center">
+  <img src="https://skillicons.dev/icons?i=ts" height="48" alt="typescript" />
+  <img width="10" />
+  <img src="https://skillicons.dev/icons?i=react" height="48" alt="react" />
+  <img width="10" />
+  <img src="https://skillicons.dev/icons?i=vite" height="48" alt="vite" />
+  <img width="10" />
+  <img src="https://skillicons.dev/icons?i=bun" height="48" alt="bun" />
+  <img width="10" />
+  <img src="https://skillicons.dev/icons?i=vercel" height="48" alt="vercel" />
+</div>
+
+###
+
+## About
+
+The public landing page for [Code Highway Patrol](https://github.com/code-highway-patrol). Single page React app, no router, deployed on Vercel. Cloudinary handles asset transformations; the cuffs in the hero are real-time ASCII rendered from a 3D torus on canvas.
+
+## Stack
+
+- React 19 + TypeScript
+- Vite (dev server, build)
+- Bun (package manager, lockfile)
+- Cloudinary (`@cloudinary/react`, `@cloudinary/url-gen`)
+- Vercel (deploy)
+
+## Quick start
 
 ```bash
-npm run dev
+bun install
+bun run dev      # http://localhost:5173
+bun run build    # tsc -b && vite build
+bun run lint     # eslint
 ```
 
-## Cloudinary Setup
+## Environment
 
-This project uses Cloudinary for image management. If you don't have a Cloudinary account yet:
-- [Sign up for free](https://cld.media/reactregister)
-- Find your cloud name in your [dashboard](https://console.cloudinary.com/app/home/dashboard)
+Create a `.env` in the project root:
 
-## Environment Variables
+```
+VITE_CLOUDINARY_CLOUD_NAME=your-cloud-name
+VITE_CLOUDINARY_UPLOAD_PRESET=your-unsigned-preset
+```
 
-Your `.env` file has been pre-configured with:
-- `VITE_CLOUDINARY_CLOUD_NAME`: dejjphulx
-- `VITE_CLOUDINARY_UPLOAD_PRESET`: (not set - add one for uploads)
+Both must be prefixed `VITE_` so Vite exposes them to the client. Restart the dev server after edits.
 
-**Note**: Transformations work without an upload preset (using sample images). Uploads require an unsigned upload preset.
+## Structure
 
-To create an unsigned upload preset:
-1. Go to https://console.cloudinary.com/app/settings/upload/presets
-2. Click "Add upload preset"
-3. Set it to "Unsigned" mode
-4. Add the preset name to your `.env` file
-5. **Save** the `.env` file and restart the dev server so the new values load correctly.
+```
+src/
+  App.tsx            page composition
+  Hero.tsx           headline + ASCII cuffs
+  Cuffs.tsx          torus-to-ASCII renderer
+  ScrollScene.tsx    pinned scroll-driven code review demo
+  Compare.tsx        feature comparison table
+  CTA.tsx            footer call to action
+  cloudinary/        shared Cloudinary instance + upload widget
+  index.css          all styles, no UI kit
+```
 
+## Roadmap
 
-## AI Assistant Support
+- [ ] Replace ASCII cuffs hero with an optional video loop
+- [ ] Interactive playground for live patrol output
+- [ ] Wire up the upload widget for user-submitted screenshots
+- [ ] Light theme polish pass
+- [ ] Open Graph preview card
 
-This project includes AI coding rules for your selected AI assistant(s). The rules help AI assistants understand Cloudinary React SDK patterns, common errors, and best practices.
+###
 
-**Try the AI Prompts**: Check out the "🤖 Try Asking Your AI Assistant" section in the app for ready-to-use Cloudinary prompts! Copy and paste them into your AI assistant to get started.
-
-## Learn More
-
-- [Cloudinary React SDK Docs](https://cloudinary.com/documentation/react_integration)
-- [Vite Documentation](https://vite.dev)
-- [React Documentation](https://react.dev)
+<p align="center">Built at <a href="https://lahacks.com">LA Hacks 2026</a> 🐻</p>

@@ -3,6 +3,10 @@
 <p align="center"><i>Marketing site for Code Highway Patrol.</i></p>
 
 <p align="center">
+  <a href="https://pinkdonut.work"><b>Live site &rarr; pinkdonut.work</b></a>
+</p>
+
+<p align="center">
   <img src="https://img.shields.io/badge/license-MIT-F2C94C?style=for-the-badge" alt="MIT License" />
   <img src="https://img.shields.io/badge/status-public%20beta-3FB950?style=for-the-badge" alt="Status" />
   <img src="https://img.shields.io/badge/built%20at-LA%20Hacks%202026-1F6FEB?style=for-the-badge" alt="LA Hacks 2026" />
@@ -11,7 +15,9 @@
 ###
 
 <p align="center">
-  <img src=".github/preview.png" alt="Code Highway Patrol landing page" width="900" />
+  <a href="https://pinkdonut.work">
+    <img src=".github/preview.png" alt="Code Highway Patrol landing page" width="900" />
+  </a>
 </p>
 
 ###
@@ -32,7 +38,18 @@
 
 ## About
 
-The public landing page for [Code Highway Patrol](https://github.com/code-highway-patrol). Single page React app, no router, deployed on Vercel. Cloudinary handles asset transformations; the cuffs in the hero are real-time ASCII rendered from a 3D torus on canvas.
+The public landing page for [Code Highway Patrol](https://github.com/code-highway-patrol). Single page React app, deployed on Vercel. The cuffs in the hero are real-time ASCII rendered from a 3D torus on canvas; the scroll-pinned scene walks through one full agent turn (draft, block, fix, clean) with hand-drawn arrow annotations.
+
+## How it works
+
+CHP is the patrol; this site explains it. The story the page tells:
+
+1. Your agent starts a turn and writes a diff.
+2. CHP intercepts before commit, runs deterministic checks (types, lint, tests, custom rules), and grades the output.
+3. Cheap, fast violations get auto-patched. The agent sees the fix in-line.
+4. The diff that survives is production-ready and cites every rule that fired.
+
+The page is hand-styled in plain CSS, no UI kit. ASCII art is computed each frame from a torus projection routed through `@chenglou/pretext` for measurement. The scroll scene uses an SVG bezier with `stroke-dasharray` animation to draw arrows live as you scrub through phases.
 
 ## Stack
 
@@ -50,39 +67,6 @@ bun run dev      # http://localhost:5173
 bun run build    # tsc -b && vite build
 bun run lint     # eslint
 ```
-
-## Environment
-
-Create a `.env` in the project root:
-
-```
-VITE_CLOUDINARY_CLOUD_NAME=your-cloud-name
-VITE_CLOUDINARY_UPLOAD_PRESET=your-unsigned-preset
-```
-
-Both must be prefixed `VITE_` so Vite exposes them to the client. Restart the dev server after edits.
-
-## Structure
-
-```
-src/
-  App.tsx            page composition
-  Hero.tsx           headline + ASCII cuffs
-  Cuffs.tsx          torus-to-ASCII renderer
-  ScrollScene.tsx    pinned scroll-driven code review demo
-  Compare.tsx        feature comparison table
-  CTA.tsx            footer call to action
-  cloudinary/        shared Cloudinary instance + upload widget
-  index.css          all styles, no UI kit
-```
-
-## Roadmap
-
-- [ ] Replace ASCII cuffs hero with an optional video loop
-- [ ] Interactive playground for live patrol output
-- [ ] Wire up the upload widget for user-submitted screenshots
-- [ ] Light theme polish pass
-- [ ] Open Graph preview card
 
 ###
 

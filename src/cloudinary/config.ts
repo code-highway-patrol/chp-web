@@ -1,21 +1,21 @@
-import { Cloudinary } from '@cloudinary/url-gen';
+import { Cloudinary } from "@cloudinary/url-gen";
 
-// Get environment variables - Vite requires VITE_ prefix
 const cloudName = import.meta.env.VITE_CLOUDINARY_CLOUD_NAME;
 
 if (!cloudName) {
   throw new Error(
-    'VITE_CLOUDINARY_CLOUD_NAME is not set. Please create a .env file with your Cloudinary cloud name.\n' +
-    'See .env.example for reference.'
+    "VITE_CLOUDINARY_CLOUD_NAME is not set. Add it to .env with the VITE_ prefix.",
   );
 }
 
-// Create and export Cloudinary instance
-export const cld = new Cloudinary({
-  cloud: {
-    cloudName: cloudName,
-  },
-});
+export const cld = new Cloudinary({ cloud: { cloudName } });
 
-// Export upload preset for convenience
-export const uploadPreset = import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || '';
+export const uploadPreset =
+  import.meta.env.VITE_CLOUDINARY_UPLOAD_PRESET || "";
+
+export function cldFetch(
+  remoteUrl: string,
+  transforms = "c_pad,w_64,h_64,b_transparent,f_auto,q_auto",
+): string {
+  return `https://res.cloudinary.com/${cloudName}/image/fetch/${transforms}/${encodeURIComponent(remoteUrl)}`;
+}

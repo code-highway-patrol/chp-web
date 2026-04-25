@@ -1,6 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getDb, STATUES, VECTOR_INDEX } from "../_lib/mongo";
-import { embed } from "../_lib/embed";
+import { getDb, STATUES, VECTOR_INDEX } from "../_lib/mongo.js";
+import { embed } from "../_lib/embed.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {

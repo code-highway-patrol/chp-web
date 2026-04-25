@@ -1,8 +1,8 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getDb, STATUES } from "../_lib/mongo";
-import { embed } from "../_lib/embed";
-import { requireUser } from "../_lib/auth";
-import { slugify } from "../_lib/slug";
+import { getDb, STATUES } from "../_lib/mongo.js";
+import { embed } from "../_lib/embed.js";
+import { requireUser } from "../_lib/auth.js";
+import { slugify } from "../_lib/slug.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const db = await getDb();

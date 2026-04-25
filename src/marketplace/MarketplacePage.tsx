@@ -1,21 +1,31 @@
 import { useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import type { Statue } from "./types";
+import { ClientPicker } from "../ClientPicker";
+import { InstallCmd } from "../InstallCmd";
+import type { ClientId } from "../clients";
+
+const PAGE_SIZE = 12;
 
 export function MarketplacePage() {
   const [query, setQuery] = useState("");
   const [items, setItems] = useState<Statue[]>([]);
+  const [hasMore, setHasMore] = useState(false);
+  const [skip, setSkip] = useState(0);
   const [loading, setLoading] = useState(true);
+  const [loadingMore, setLoadingMore] = useState(false);
   const [error, setError] = useState<string | null>(null);
+  const [client, setClient] = useState<ClientId>("claude");
   const reqId = useRef(0);
 
-  useEffect(() => {
+  const loadFirstPage = (q: string) => {
     const id = ++reqId.current;
     setLoading(true);
     setError(null);
+    setSkip(0);
 
-    const trimmed = query.trim();
-    const t = setTimeout(async () => {
+    const trimmed = q.trim();
+    (async () => {
       try {
         const res = trimmed
           ? await fetch("/api/statues/search", {
@@ -23,19 +33,41 @@ export function MarketplacePage() {
               headers: { "Content-Type": "application/json" },
               body: JSON.stringify({ query: trimmed }),
             })
-          : await fetch("/api/statues");
+          : await fetch(`/api/statues?limit=${PAGE_SIZE}&skip=0`);
         if (!res.ok) throw new Error(`${res.status}`);
         const data = await res.json();
         if (id !== reqId.current) return;
         setItems(data.items ?? []);
+        setHasMore(trimmed ? false : !!data.hasMore);
       } catch (err) {
         if (id !== reqId.current) return;
         setError(err instanceof Error ? err.message : "failed to load");
       } finally {
         if (id === reqId.current) setLoading(false);
       }
-    }, trimmed ? 280 : 0);
+    })();
+  };
 
+  const loadMore = async () => {
+    if (loadingMore || !hasMore) return;
+    setLoadingMore(true);
+    const nextSkip = skip + PAGE_SIZE;
+    try {
+      const res = await fetch(`/api/statues?limit=${PAGE_SIZE}&skip=${nextSkip}`);
+      if (!res.ok) throw new Error(`${res.status}`);
+      const data = await res.json();
+      setItems((prev) => [...prev, ...(data.items ?? [])]);
+      setHasMore(!!data.hasMore);
+      setSkip(nextSkip);
+    } catch (err) {
+      setError(err instanceof Error ? err.message : "failed to load");
+    } finally {
+      setLoadingMore(false);
+    }
+  };
+
+  useEffect(() => {
+    const t = setTimeout(() => loadFirstPage(query), query.trim() ? 280 : 0);
     return () => clearTimeout(t);
   }, [query]);
 
@@ -50,17 +82,31 @@ export function MarketplacePage() {
         </h1>
         <p className="market-sub">
           Statues are .chprc rule packs the community wrote. Drop one in your
-          repo and CHP starts enforcing it on every agent turn.
+          .chprc and CHP starts enforcing it on every agent turn.
         </p>
+
+        <div className="market-install">
+          <ClientPicker value={client} onChange={setClient} />
+          <InstallCmd client={client} />
+        </div>
+
         <div className="market-search">
-          <input
-            type="text"
-            value={query}
-            onChange={(e) => setQuery(e.target.value)}
-            placeholder="describe what you want to enforce…"
-            className="market-search-input"
-            autoFocus
-          />
+          <div className="market-search-wrap">
+            <input
+              type="text"
+              value={query}
+              onChange={(e) => setQuery(e.target.value)}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") loadFirstPage(query);
+              }}
+              placeholder="describe what you want to enforce…"
+              className="market-search-input"
+              autoFocus
+            />
+            <span className="market-search-kbd" aria-hidden>
+              {query.trim() ? "↵" : "press ↵ to search"}
+            </span>
+          </div>
           <Link className="btn market-publish" to="/marketplace/new">
             Publish
           </Link>
@@ -79,6 +125,17 @@ export function MarketplacePage() {
             <StatueCard key={s.slug} statue={s} />
           ))}
         </div>
+        {hasMore && !query.trim() && (
+          <div className="market-loadmore">
+            <button
+              className="btn btn-ghost"
+              onClick={loadMore}
+              disabled={loadingMore}
+            >
+              {loadingMore ? "loading…" : "load more"}
+            </button>
+          </div>
+        )}
       </div>
     </main>
   );

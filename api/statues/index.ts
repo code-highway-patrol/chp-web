@@ -9,13 +9,17 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
   const col = db.collection(STATUES);
 
   if (req.method === "GET") {
-    const limit = Math.min(Number(req.query.limit) || 30, 100);
-    const cursor = col
+    const limit = Math.min(Number(req.query.limit) || 12, 50);
+    const skip = Math.max(Number(req.query.skip) || 0, 0);
+    const items = await col
       .find({}, { projection: { embedding: 0 } })
       .sort({ stars: -1, createdAt: -1 })
-      .limit(limit);
-    const items = await cursor.toArray();
-    return res.status(200).json({ items });
+      .skip(skip)
+      .limit(limit + 1)
+      .toArray();
+    const hasMore = items.length > limit;
+    if (hasMore) items.pop();
+    return res.status(200).json({ items, hasMore, skip, limit });
   }
 
   if (req.method === "POST") {

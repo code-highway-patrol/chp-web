@@ -1,5 +1,6 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
-import { getDb, STATUES } from "../_lib/mongo.js";
+import { getDb, STATUES, STARS } from "../../_lib/mongo.js";
+import { optionalUser } from "../../_lib/auth.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "GET") {
@@ -16,5 +17,16 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     .findOne({ slug }, { projection: { embedding: 0 } });
 
   if (!statue) return res.status(404).json({ error: "not found" });
-  return res.status(200).json(statue);
+
+  const user = await optionalUser(req.headers.authorization);
+  let hasStarred = false;
+  if (user) {
+    const star = await db.collection(STARS).findOne({
+      statueId: statue._id,
+      userId: user.id,
+    });
+    hasStarred = !!star;
+  }
+
+  return res.status(200).json({ ...statue, hasStarred });
 }

@@ -38,4 +38,5 @@ export async function getDb(): Promise<Db> {
 }
 
 export const STATUES = "statues";
+export const STARS = "stars";
 export const VECTOR_INDEX = "statues_vector_index";

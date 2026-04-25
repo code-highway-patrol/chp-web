@@ -9,4 +9,5 @@ export type Statue = {
   createdAt: string;
   stars: number;
   score?: number;
+  hasStarred?: boolean;
 };

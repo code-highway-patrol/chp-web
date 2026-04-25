@@ -118,6 +118,96 @@ const STARTER = [
     tags: ["sql", "database", "discipline"],
     authorName: "patrol",
   },
+  {
+    title: "Bash strict mode",
+    body: `# bash-strict
+- every script starts with: set -euo pipefail
+- IFS=$'\\n\\t' to avoid word-splitting surprises
+- quote every variable expansion: "$var" not $var
+- prefer [[ ]] over [ ] for conditionals`,
+    tags: ["bash", "shell", "scripts"],
+    authorName: "ops",
+  },
+  {
+    title: "REST status codes that mean what they say",
+    body: `# rest-status-codes
+- 200 OK only when the body contains the resource
+- 201 Created on POST that creates; include Location header
+- 204 No Content on successful delete
+- never 200 with { "error": ... } body — use 4xx`,
+    tags: ["rest", "api", "http"],
+    authorName: "platform",
+  },
+  {
+    title: "Migrations are append-only",
+    body: `# migrations
+- never edit a committed migration; write a new one
+- forward + reverse must both be tested locally
+- no data backfills inside a schema migration — separate scripts
+- name files with timestamp prefix so order is unambiguous`,
+    tags: ["database", "migrations", "ops"],
+    authorName: "platform",
+  },
+  {
+    title: "Pin Docker base images by digest",
+    body: `# docker-pinning
+- pin base images by sha256 digest, not by floating tag
+- floating tags (\`:latest\`, \`:20\`) silently break reproducibility
+- update digests in PRs you can review, not in builds you can't
+- Renovate/Dependabot can automate digest bumps`,
+    tags: ["docker", "supply-chain", "reproducibility"],
+    authorName: "secops",
+  },
+  {
+    title: "No magic numbers",
+    body: `# magic-numbers
+- extract repeated literals to named constants
+- exception: 0, 1, -1, and obvious indexes (arr[0])
+- units belong in the name: TIMEOUT_MS not TIMEOUT
+- if a number needs a comment to explain it, name it instead`,
+    tags: ["readability", "constants"],
+    authorName: "patrol",
+  },
+  {
+    title: "Treat warnings as errors in CI",
+    body: `# warnings-are-errors
+- compiler warnings, lint warnings, deprecation notices — all fail CI
+- new warnings should be impossible to merge, not just discouraged
+- if a warning is a false positive, suppress it inline with a comment explaining why
+- weekly: review the suppression list and remove stale ones`,
+    tags: ["ci", "lint", "discipline"],
+    authorName: "platform",
+  },
+  {
+    title: "Structured logging only",
+    body: `# structured-logging
+- log records are objects, not strings — use a real logger (pino/winston/structlog)
+- every log line has: level, timestamp, request_id, event
+- never log secrets, tokens, or full request bodies — redact at the logger
+- include enough context to debug without re-running the request`,
+    tags: ["logging", "observability"],
+    authorName: "ops",
+  },
+  {
+    title: "Feature flag risky changes",
+    body: `# feature-flags
+- any change touching shared infra ships behind a flag
+- flags default off, opt in by team or % rollout
+- delete the flag within 2 weeks of full rollout — flags are debt
+- never use flags for permissions; use a real authz system`,
+    tags: ["release", "feature-flags", "rollout"],
+    authorName: "release",
+  },
+  {
+    title: "CSS: no !important without a comment",
+    body: `# css-important
+- !important is almost always covering up a specificity bug
+- if you must use it, leave a comment explaining why it can't be solved with cascade
+- audit existing !important during refactors — most can be removed
+- no !important in design system primitives, ever`,
+    tags: ["css", "design-system"],
+    authorName: "frontend",
+  },
 ];
 
 function slugify(s) {
@@ -195,9 +285,66 @@ async function main() {
     console.log(`   created index "${INDEX_NAME}" — building takes ~30s`);
   }
 
+  console.log("=> seeding stars + recomputing counts");
+  const stars = db.collection("stars");
+  await stars.createIndex({ statueId: 1, userId: 1 }, { unique: true });
+
+  const allStatues = await col.find({}, { projection: { _id: 1, slug: 1 } }).toArray();
+  const SEED_USERS = Array.from({ length: 60 }, (_, i) => `system-${String(i + 1).padStart(3, "0")}`);
+
+  for (const s of allStatues) {
+    const existingForStatue = await stars.countDocuments({ statueId: s._id });
+    const targetCount = Math.floor(seedCountFor(s.slug));
+    if (existingForStatue >= targetCount) {
+      await col.updateOne({ _id: s._id }, { $set: { stars: existingForStatue } });
+      console.log(`   ${s.slug}: ${existingForStatue} stars (kept)`);
+      continue;
+    }
+
+    const need = targetCount - existingForStatue;
+    const usedUsers = await stars.distinct("userId", { statueId: s._id });
+    const pool = SEED_USERS.filter((u) => !usedUsers.includes(u));
+    const picks = shuffle(pool).slice(0, need);
+
+    if (picks.length) {
+      await stars.insertMany(
+        picks.map((userId) => ({
+          statueId: s._id,
+          userId,
+          createdAt: randomPastDate(),
+        }))
+      );
+    }
+
+    const total = existingForStatue + picks.length;
+    await col.updateOne({ _id: s._id }, { $set: { stars: total } });
+    console.log(`   ${s.slug}: ${total} stars`);
+  }
+
   const total = await col.countDocuments();
   console.log(`=> done. ${total} total statues in ${COLLECTION}.`);
   await client.close();
+}
+
+function seedCountFor(slug) {
+  // deterministic-ish star count seeded from slug, range ~5-55
+  let h = 0;
+  for (let i = 0; i < slug.length; i++) h = (h * 31 + slug.charCodeAt(i)) | 0;
+  return 8 + (Math.abs(h) % 48);
+}
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function randomPastDate() {
+  const days = Math.floor(Math.random() * 90);
+  return new Date(Date.now() - days * 24 * 3600 * 1000);
 }
 
 main().catch((err) => {

@@ -2,10 +2,12 @@ import { useState } from "react";
 import { ClientPicker } from "./ClientPicker";
 import { InstallCmd } from "./InstallCmd";
 import { Cuffs } from "./Cuffs";
+import { Donut } from "./Donut";
 import type { ClientId } from "./clients";
 
 export function Hero() {
   const [client, setClient] = useState<ClientId>("windsurf");
+  const [showDonut] = useState(() => Math.random() < 0.5);
 
   return (
     <section className="hero">
@@ -32,9 +34,7 @@ export function Hero() {
           </div>
 
         </div>
-        <div>
-          <Cuffs />
-        </div>
+        <div>{showDonut ? <Donut /> : <Cuffs />}</div>
       </div>
     </section>
   );

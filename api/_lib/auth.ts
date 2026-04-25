@@ -25,3 +25,5 @@ export async function requireUser(
   if (error || !data.user) return null;
   return { id: data.user.id, email: data.user.email };
 }
+
+export const optionalUser = requireUser;

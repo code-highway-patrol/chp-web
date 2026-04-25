@@ -1,25 +1,28 @@
+import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { Nav } from "./Nav";
-import { Hero } from "./Hero";
-import { ScrollScene } from "./ScrollScene";
-import { HowItWorks } from "./HowItWorks";
-import { Features } from "./Features";
-import { Compare } from "./Compare";
-import { CTA } from "./CTA";
 import { Footer } from "./Footer";
 import { GetStartedModal } from "./GetStartedModal";
+import { Landing } from "./Landing";
+import { MarketplacePage } from "./marketplace/MarketplacePage";
+import { StatueDetailPage } from "./marketplace/StatueDetailPage";
+import { NewStatuePage } from "./marketplace/NewStatuePage";
+import { SignInPage } from "./auth/SignInPage";
+import { AuthCallbackPage } from "./auth/AuthCallbackPage";
 
 export default function App() {
   return (
-    <>
+    <BrowserRouter>
       <Nav />
-      <Hero />
-      <ScrollScene />
-      <HowItWorks />
-      <Features />
-      <Compare />
-      <CTA />
+      <Routes>
+        <Route path="/" element={<Landing />} />
+        <Route path="/marketplace" element={<MarketplacePage />} />
+        <Route path="/marketplace/new" element={<NewStatuePage />} />
+        <Route path="/marketplace/:slug" element={<StatueDetailPage />} />
+        <Route path="/auth" element={<SignInPage />} />
+        <Route path="/auth/callback" element={<AuthCallbackPage />} />
+      </Routes>
       <Footer />
       <GetStartedModal />
-    </>
+    </BrowserRouter>
   );
 }

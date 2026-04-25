@@ -5,20 +5,36 @@ const dbName = process.env.MONGODB_DB || "marketplace";
 
 if (!uri) throw new Error("MONGODB_URI is not set");
 
-let cachedClient: MongoClient | null = null;
-let cachedDb: Db | null = null;
+declare global {
+  var _chpMongoClient: MongoClient | undefined;
+}
+
+function makeClient() {
+  return new MongoClient(uri!, {
+    maxPoolSize: 10,
+    serverSelectionTimeoutMS: 8000,
+    socketTimeoutMS: 30000,
+  });
+}
 
 export async function getDb(): Promise<Db> {
-  if (cachedDb) return cachedDb;
-  if (!cachedClient) {
-    cachedClient = new MongoClient(uri!, {
-      maxPoolSize: 10,
-      serverSelectionTimeoutMS: 8000,
-    });
-    await cachedClient.connect();
+  let client = globalThis._chpMongoClient;
+
+  if (client) {
+    try {
+      await client.db(dbName).command({ ping: 1 });
+      return client.db(dbName);
+    } catch {
+      try { await client.close(); } catch { /* ignore */ }
+      globalThis._chpMongoClient = undefined;
+      client = undefined;
+    }
   }
-  cachedDb = cachedClient.db(dbName);
-  return cachedDb;
+
+  client = makeClient();
+  await client.connect();
+  globalThis._chpMongoClient = client;
+  return client.db(dbName);
 }
 
 export const STATUES = "statues";

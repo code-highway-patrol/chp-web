@@ -11,12 +11,15 @@ Because CHP exists to keep AI output production-ready, **this codebase must be e
 ## Stack
 
 - Next.js 16 (App Router, Turbopack) + React 19
-- TypeScript (strict)
-- Tailwind CSS v4
+- TypeScript with `strict` + `noUncheckedIndexedAccess`
+- Tailwind CSS v4 + shadcn/ui (base preset, neutral palette, CSS variables)
+- Cloudinary for hosted media (`next-cloudinary`)
 - Bun (runtime + package manager + lockfile)
 - Deployed on Vercel
 
 `src/app/` is the App Router root. There is no `pages/` directory; do not create one.
+Shared UI lives in `src/components/`; primitives from shadcn land in `src/components/ui/`.
+`src/lib/utils.ts` exports `cn()` — use it for class merging, don't roll your own.
 
 ## Commands
 
@@ -25,10 +28,18 @@ bun install            # install deps (use bun, not npm/pnpm — bun.lock is can
 bun run dev            # local dev server at http://localhost:3000
 bun run build          # production build (must pass before merge)
 bun run lint           # eslint
-bunx tsc --noEmit      # typecheck
+bun run typecheck      # tsc --noEmit
+bun run format         # prettier --write .
+bun run format:check   # prettier --check . (CI mode)
 ```
 
+To add a shadcn component: `bunx --bun shadcn@latest add <name>` — never hand-author UI primitives that already exist in the registry.
+
 There is no test runner configured yet. If you add one, use `bun test` (Vitest is fine if Bun's runner doesn't fit).
+
+## Cloudinary
+
+Public assets served through Cloudinary. The cloud name is exposed at build time via `NEXT_PUBLIC_CLOUDINARY_CLOUD_NAME` (see `.env.example`); locally, copy that file to `.env.local` and fill it in. Use `<CldImage>` from `next-cloudinary` for any Cloudinary-hosted asset; reserve `next/image` for assets that live in `/public`.
 
 ## House rules for AI contributors
 
@@ -49,9 +60,10 @@ These are non-negotiable. They exist because the product itself is about enforci
 
 ### No noise comments
 
-Default to **zero comments**. Add one only when the *why* is non-obvious — a hidden constraint, a workaround for a known bug, a subtle invariant. If a future reader could delete the comment without losing information, it shouldn't be there.
+Default to **zero comments**. Add one only when the _why_ is non-obvious — a hidden constraint, a workaround for a known bug, a subtle invariant. If a future reader could delete the comment without losing information, it shouldn't be there.
 
 Banned comment styles:
+
 - `// added X` / `// removed Y` / `// TODO: refactor later`
 - Restating what the code obviously does
 - Referencing the task that prompted the change ("for the landing page redo")

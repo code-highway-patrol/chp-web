@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# chp-scaffold
 
-## Getting Started
+A Cloudinary React + Vite + TypeScript project scaffolded with [create-cloudinary-react](https://github.com/cloudinary-devs/create-cloudinary-react).
 
-First, run the development server:
+## Prerequisites
+
+- **Node.js** — use a current LTS release. Supported ranges are listed under `engines` in this `package.json`.
+
+## Quick Start
 
 ```bash
 npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+## Cloudinary Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+This project uses Cloudinary for image management. If you don't have a Cloudinary account yet:
+- [Sign up for free](https://cld.media/reactregister)
+- Find your cloud name in your [dashboard](https://console.cloudinary.com/app/home/dashboard)
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+## Environment Variables
+
+Your `.env` file has been pre-configured with:
+- `VITE_CLOUDINARY_CLOUD_NAME`: dejjphulx
+- `VITE_CLOUDINARY_UPLOAD_PRESET`: (not set - add one for uploads)
+
+**Note**: Transformations work without an upload preset (using sample images). Uploads require an unsigned upload preset.
+
+To create an unsigned upload preset:
+1. Go to https://console.cloudinary.com/app/settings/upload/presets
+2. Click "Add upload preset"
+3. Set it to "Unsigned" mode
+4. Add the preset name to your `.env` file
+5. **Save** the `.env` file and restart the dev server so the new values load correctly.
+
+
+## AI Assistant Support
+
+This project includes AI coding rules for your selected AI assistant(s). The rules help AI assistants understand Cloudinary React SDK patterns, common errors, and best practices.
+
+**Try the AI Prompts**: Check out the "🤖 Try Asking Your AI Assistant" section in the app for ready-to-use Cloudinary prompts! Copy and paste them into your AI assistant to get started.
 
 ## Learn More
 
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- [Cloudinary React SDK Docs](https://cloudinary.com/documentation/react_integration)
+- [Vite Documentation](https://vite.dev)
+- [React Documentation](https://react.dev)

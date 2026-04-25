@@ -74,6 +74,13 @@ export function GetStartedModal() {
                   <ClientPicker value={client} onChange={setClient} />
                   <InstallCmd client={client} />
                 </div>
+                <div className="modal-step-req">
+                  requires <code className="modal-code">bash 4+</code>
+                  <span className="modal-step-req-hint">
+                    macOS ships 3.2 — get a newer one with{" "}
+                    <code className="modal-code">brew install bash</code>
+                  </span>
+                </div>
               </div>
             </li>
             <li>

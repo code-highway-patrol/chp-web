@@ -89,6 +89,10 @@ export function MarketplacePage() {
           <ClientPicker value={client} onChange={setClient} />
           <InstallCmd client={client} />
         </div>
+        <div className="market-install-req">
+          requires <code>bash 4+</code> · macOS ships 3.2, install a newer
+          one via <code>brew install bash</code>
+        </div>
 
         <div className="market-search">
           <div className="market-search-wrap">

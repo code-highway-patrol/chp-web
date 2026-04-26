@@ -34,7 +34,6 @@ export function Nav() {
         <div className="nav-links">
           <NavLink to="/" end>About</NavLink>
           <NavLink to="/marketplace">Marketplace</NavLink>
-          <NavLink to="/marketplace/new">Contribute</NavLink>
         </div>
         <div className="nav-cta">
           <ThemeToggle />
@@ -50,14 +49,6 @@ export function Nav() {
               {menuOpen && (
                 <div className="nav-user-menu">
                   <div className="nav-user-email">{user.email}</div>
-                  <button
-                    onClick={() => {
-                      setMenuOpen(false);
-                      navigate("/marketplace/new");
-                    }}
-                  >
-                    Contribute a statue
-                  </button>
                   <button
                     onClick={async () => {
                       setMenuOpen(false);

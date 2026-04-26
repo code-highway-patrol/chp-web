@@ -116,9 +116,6 @@ export function MarketplacePage() {
               {query.trim() ? "↵" : "press ↵ to search"}
             </span>
           </div>
-          <Link className="btn market-publish" to="/marketplace/new">
-            Contribute
-          </Link>
         </div>
       </div>
       <div className="wrap">

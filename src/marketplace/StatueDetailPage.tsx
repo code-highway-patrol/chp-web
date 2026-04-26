@@ -3,6 +3,13 @@ import { Link, useParams } from "react-router-dom";
 import type { Statue, StatueFile } from "./types";
 import { getStatueBySlug } from "./statuesCatalog";
 import { isSlugStarred, toggleSlugStarred } from "./localStarPreferences";
+import { ClientPicker } from "../ClientPicker";
+import type { ClientId } from "../clients";
+
+function installCommand(client: ClientId, slug: string): string {
+  if (client === "claude") return `/chp install ${slug}`;
+  return `chp install ${slug}`;
+}
 
 function formatLawJson(raw: string | object | undefined): string | null {
   if (raw == null) return null;
@@ -147,39 +154,9 @@ function LawPackView({ statue }: { statue: Statue }) {
     }
   };
 
-  const installSnippet = useMemo(() => {
-    return [
-      `# install ${statue.slug} into your repo, from the repo root:`,
-      ``,
-      ...installCommands(statue.slug, files),
-      ``,
-      `# then register the new laws with CHP's hook registry:`,
-      `bash ~/.chp/commands/chp-hooks register`,
-    ].join("\n");
-  }, [statue.slug, files]);
-
-  const [installCopied, setInstallCopied] = useState(false);
-  const copyInstall = async () => {
-    try {
-      await navigator.clipboard.writeText(installSnippet);
-      setInstallCopied(true);
-      setTimeout(() => setInstallCopied(false), 1400);
-    } catch {
-      /* clipboard blocked */
-    }
-  };
-
   return (
     <>
-      <div className="lawpack-install">
-        <div className="lawpack-install-head">
-          <span>install into your repo</span>
-          <button type="button" className="detail-copy" onClick={copyInstall}>
-            {installCopied ? "copied" : "copy"}
-          </button>
-        </div>
-        <pre className="lawpack-install-body">{installSnippet}</pre>
-      </div>
+      <InstallPanel slug={statue.slug} />
 
       <div className="lawpack-explorer">
         <aside className="lawpack-tree">
@@ -209,30 +186,36 @@ function LawPackView({ statue }: { statue: Statue }) {
   );
 }
 
-// Generates a deterministic bash one-liner per file. Heredocs are quoted to
-// suppress shell expansion in case the law content contains $ or backticks.
-function installCommands(slug: string, files: StatueFile[]): string[] {
-  const out: string[] = [];
-  const folders = new Set<string>();
-  for (const f of files) {
-    const dir = f.path.includes("/")
-      ? f.path.slice(0, f.path.lastIndexOf("/"))
-      : "";
-    if (dir && !folders.has(dir)) {
-      out.push(`mkdir -p docs/chp/laws/${dir}`);
-      folders.add(dir);
+function InstallPanel({ slug }: { slug: string }) {
+  const [client, setClient] = useState<ClientId>("claude");
+  const [copied, setCopied] = useState(false);
+  const cmd = installCommand(client, slug);
+  const copy = async () => {
+    try {
+      await navigator.clipboard.writeText(cmd);
+      setCopied(true);
+      setTimeout(() => setCopied(false), 1400);
+    } catch {
+      /* clipboard blocked */
     }
-  }
-  for (const f of files) {
-    const heredoc = `STATUE_${slug.replace(/[^A-Z0-9]/gi, "_").toUpperCase()}_EOF`;
-    out.push(`cat > docs/chp/laws/${f.path} <<'${heredoc}'`);
-    out.push(f.content.replace(/\n+$/, ""));
-    out.push(heredoc);
-    if (f.path.endsWith(".sh")) {
-      out.push(`chmod +x docs/chp/laws/${f.path}`);
-    }
-  }
-  return out;
+  };
+  return (
+    <div className="statue-install">
+      <div className="statue-install-head">
+        <span className="statue-install-label">install</span>
+        <ClientPicker value={client} onChange={setClient} />
+      </div>
+      <div className="statue-install-row">
+        <span className="statue-install-prompt">
+          {client === "claude" ? ">" : "$"}
+        </span>
+        <code className="statue-install-cmd">{cmd}</code>
+        <button type="button" className="detail-copy" onClick={copy}>
+          {copied ? "copied" : "copy"}
+        </button>
+      </div>
+    </div>
+  );
 }
 
 // ── Legacy single-law (backwards compat with body + lawJson statues) ──────
@@ -272,6 +255,7 @@ function LegacySingleView({ statue }: { statue: Statue }) {
 
   return (
     <>
+      <InstallPanel slug={statue.slug} />
       <div className="detail-card">
         <div className="detail-card-head">
           <span className="detail-card-label">guidance.md</span>

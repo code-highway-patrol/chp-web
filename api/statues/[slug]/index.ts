@@ -1,6 +1,8 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import type { Document } from "mongodb";
 import { getDb, STATUES, STARS } from "../../_lib/mongo.js";
 import { optionalUser } from "../../_lib/auth.js";
+import { serializeStatue } from "../../_lib/statue-serialize.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "GET") {
@@ -28,5 +30,8 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     hasStarred = !!star;
   }
 
-  return res.status(200).json({ ...statue, hasStarred });
+  return res.status(200).json({
+    ...serializeStatue(statue as Document),
+    hasStarred,
+  });
 }

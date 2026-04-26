@@ -183,7 +183,10 @@ function firstParagraph(statue: Statue): string {
   const fromLaw = statue.lawJson
     ? (() => {
         try {
-          const o = JSON.parse(statue.lawJson) as { intent?: string };
+          const o =
+            typeof statue.lawJson === "string"
+              ? (JSON.parse(statue.lawJson) as { intent?: string })
+              : (statue.lawJson as { intent?: string });
           return typeof o.intent === "string" ? o.intent : "";
         } catch {
           return "";

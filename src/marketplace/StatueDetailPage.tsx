@@ -3,8 +3,16 @@ import { Link, useParams, useNavigate } from "react-router-dom";
 import type { Statue } from "./types";
 import { useAuth, authedFetch } from "../auth/useAuth";
 
-function formatLawJson(raw: string | undefined): string | null {
-  if (!raw?.trim()) return null;
+function formatLawJson(raw: string | object | undefined): string | null {
+  if (raw == null) return null;
+  if (typeof raw === "object") {
+    try {
+      return JSON.stringify(raw, null, 2);
+    } catch {
+      return null;
+    }
+  }
+  if (!raw.trim()) return null;
   try {
     return JSON.stringify(JSON.parse(raw), null, 2);
   } catch {
@@ -53,8 +61,12 @@ export function StatueDetailPage() {
   };
 
   const copyLaw = async () => {
-    if (!statue?.lawJson) return;
-    const text = lawFormatted ?? statue.lawJson;
+    if (statue?.lawJson == null || statue.lawJson === "") return;
+    const text =
+      lawFormatted ??
+      (typeof statue.lawJson === "string"
+        ? statue.lawJson
+        : JSON.stringify(statue.lawJson, null, 2));
     await navigator.clipboard.writeText(text);
     setCopied("law");
     setTimeout(() => setCopied(null), 1600);

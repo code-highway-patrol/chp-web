@@ -1,9 +1,12 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import type { Document } from "mongodb";
 import { getDb, STATUES } from "../_lib/mongo.js";
 import { embed } from "../_lib/embed.js";
 import { requireUser } from "../_lib/auth.js";
 import { slugify } from "../_lib/slug.js";
 import { normalizeLawJsonInput } from "../_lib/law-json.js";
+import { getJsonBody } from "../_lib/parse-json-body.js";
+import { serializeStatue } from "../_lib/statue-serialize.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const db = await getDb();
@@ -20,19 +23,31 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
       .toArray();
     const hasMore = items.length > limit;
     if (hasMore) items.pop();
-    return res.status(200).json({ items, hasMore, skip, limit });
+    return res.status(200).json({
+      items: items.map((d) => serializeStatue(d)),
+      hasMore,
+      skip,
+      limit,
+    });
   }
 
   if (req.method === "POST") {
     const user = await requireUser(req.headers.authorization);
     if (!user) return res.status(401).json({ error: "unauthorized" });
 
-    const { title, body, lawJson, tags, authorName } = req.body ?? {};
-    if (typeof title !== "string" || typeof body !== "string") {
+    const payload = getJsonBody(req) as Record<string, unknown>;
+    const { title, body: guidanceMd, lawJson, tags, authorName } = payload;
+    if (typeof title !== "string" || typeof guidanceMd !== "string") {
       return res.status(400).json({ error: "title and body required" });
     }
 
-    const law = normalizeLawJsonInput(lawJson);
+    const lawPayload =
+      typeof lawJson === "string"
+        ? lawJson
+        : lawJson !== null && typeof lawJson === "object"
+          ? JSON.stringify(lawJson)
+          : lawJson;
+    const law = normalizeLawJsonInput(lawPayload);
     if (!law.ok) return res.status(400).json({ error: law.error });
 
     const slug = slugify(title);
@@ -41,12 +56,12 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const existing = await col.findOne({ slug });
     if (existing) return res.status(409).json({ error: "slug already exists" });
 
-    const embedding = await embed(`${title}\n\n${body}\n\n${law.json}`);
+    const embedding = await embed(`${title}\n\n${guidanceMd}\n\n${law.json}`);
 
     const doc = {
       slug,
       title,
-      body,
+      body: guidanceMd,
       lawJson: law.json,
       tags: Array.isArray(tags) ? tags.slice(0, 12).map(String) : [],
       authorId: user.id,
@@ -57,8 +72,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     };
 
     await col.insertOne(doc);
-    const { embedding: _, ...published } = doc;
-    return res.status(201).json(published);
+    return res.status(201).json(serializeStatue(doc as Document));
   }
 
   res.setHeader("Allow", "GET, POST");

@@ -1,6 +1,8 @@
 import type { VercelRequest, VercelResponse } from "@vercel/node";
+import type { Document } from "mongodb";
 import { getDb, STATUES, VECTOR_INDEX } from "../_lib/mongo.js";
 import { embed } from "../_lib/embed.js";
+import { serializeStatue } from "../_lib/statue-serialize.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   if (req.method !== "POST") {
@@ -37,5 +39,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     ])
     .toArray();
 
-  return res.status(200).json({ items: results });
+  return res.status(200).json({
+    items: results.map((d) => serializeStatue(d as Document)),
+  });
 }

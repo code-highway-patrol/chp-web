@@ -3,8 +3,8 @@ export type Statue = {
   slug: string;
   title: string;
   body: string;
-  /** Serialized law.json (object), same as on disk under docs/chp/laws/<name>/ */
-  lawJson?: string;
+  /** Same as on-disk law.json; API usually sends a string, may be an object if stored as BSON doc. */
+  lawJson?: string | object;
   tags: string[];
   authorId: string;
   authorName: string;

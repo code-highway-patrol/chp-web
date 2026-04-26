@@ -94,9 +94,7 @@ export function HowItWorks() {
       <div className="wrap">
         <div className="s-head">
           <div className="kicker">how it works</div>
-          <h2>
-            Every turn gets a checkpoint. Every checkpoint takes milliseconds.
-          </h2>
+          <h2>Every turn gets a checkpoint.</h2>
         </div>
         <ol className="lanes" aria-label="How CHP processes a turn">
           {STEPS.map((s, i) => (

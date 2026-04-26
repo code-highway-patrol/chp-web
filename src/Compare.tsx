@@ -1,8 +1,6 @@
 type Row = { l: string; gsd: string; chp: string };
 
 const ROWS: Row[] = [
-  { l: "Token cost per turn", gsd: "~$0.05 – 0.20", chp: "~$0.003 – 0.01" },
-  { l: "Time to verdict", gsd: "6 – 30s", chp: "180 – 600ms" },
   { l: "Deterministic checks", gsd: "sometimes", chp: "always" },
   { l: "Cites which rule fired", gsd: "no", chp: "yes" },
   { l: "Auto-patches small fixes", gsd: "with prompt", chp: "by default" },

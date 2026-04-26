@@ -29,7 +29,7 @@ const FEATS: Feat[] = [
   {
     tag: "02 streamed",
     title: "Verdicts as the diff lands",
-    body: "Results stream back the instant a check finishes. No 30‑second stalls.",
+    body: "Results stream back the instant a check finishes.",
     icon: (
       <svg {...ICON} aria-hidden>
         <path d="M4 7l5 5-5 5" />

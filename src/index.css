@@ -1544,6 +1544,80 @@ section.s {
 .compare-row .val.chp { color: var(--ink); }
 .tick { color: var(--good); }
 .cross { color: var(--ink-3); }
+.cmp-cell { display: flex; align-items: center; gap: 10px; }
+.cmp-icon { flex: none; }
+.cmp-icon.yes { color: var(--good); }
+.cmp-icon.partial { color: var(--ink-3); }
+.cmp-icon.no { color: var(--ink-3); opacity: 0.65; }
+.cmp-note {
+  font-family: var(--mono);
+  font-size: 12px;
+  letter-spacing: 0.02em;
+  color: var(--ink-3);
+}
+.compare-row .val.chp .cmp-note { color: var(--ink-2); }
+
+.cmp-label { position: relative; display: inline-block; }
+.cmp-label-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  color: inherit;
+  cursor: help;
+  text-align: left;
+}
+.cmp-label-btn:hover,
+.cmp-label-btn:focus-visible {
+  color: var(--ink);
+  outline: none;
+}
+.cmp-info { color: var(--ink-3); flex: none; transition: color 120ms ease; }
+.cmp-label-btn:hover .cmp-info,
+.cmp-label-btn:focus-visible .cmp-info { color: var(--ink); }
+
+.cmp-tip {
+  position: absolute;
+  top: calc(100% + 10px);
+  left: 0;
+  z-index: 5;
+  width: 280px;
+  max-width: calc(100vw - 32px);
+  padding: 12px 14px;
+  background: var(--bg);
+  border: 1px solid var(--line);
+  border-radius: 10px;
+  box-shadow: 0 10px 28px -12px rgba(0, 0, 0, 0.18);
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  font-size: 13px;
+  line-height: 1.45;
+  color: var(--ink-2);
+  opacity: 0;
+  pointer-events: none;
+  transform: translateY(-4px);
+  transition: opacity 120ms ease, transform 120ms ease;
+}
+.cmp-tip-icon {
+  color: var(--ink);
+  flex: none;
+  width: 22px;
+  height: 22px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.cmp-tip-body { flex: 1; }
+.cmp-label:hover .cmp-tip,
+.cmp-label:focus-within .cmp-tip {
+  opacity: 1;
+  pointer-events: auto;
+  transform: translateY(0);
+}
 
 /* ---- Coverage (where CHP runs) ---- */
 .cov {

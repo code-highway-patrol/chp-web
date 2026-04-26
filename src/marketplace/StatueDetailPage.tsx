@@ -8,8 +8,7 @@ import type { ClientId } from "../clients";
 import { VirusTotalBadge } from "./VirusTotalBadge";
 import { Markdown } from "./Markdown";
 
-function installCommand(client: ClientId, slug: string): string {
-  if (client === "claude") return `/chp:install ${slug}`;
+function installCommand(_client: ClientId, slug: string): string {
   return `chp install ${slug}`;
 }
 
@@ -244,7 +243,7 @@ function InstallPanel({ slug }: { slug: string }) {
       </div>
       <div className="statue-install-row">
         <span className="statue-install-prompt">
-          {client === "claude" ? ">" : "$"}
+          $
         </span>
         <code className="statue-install-cmd">{cmd}</code>
         <button type="button" className="detail-copy" onClick={copy}>

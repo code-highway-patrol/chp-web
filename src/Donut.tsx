@@ -30,10 +30,17 @@ const PHI_STEP = 0.025;
 const SPIN_A_RATE = 0.55;
 const SPIN_B_RATE = 0.95;
 
-const REPULSE_R = 3.6;
-const REPULSE_K = 3.2;
-const REPULSE_MAX = 1.6;
-const REPULSE_FADE_PER_SEC = 8;
+// Hover ejects chars off the donut surface like sparks. Newly spawned chars
+// inherit their color from the cell they came from and arc outward under
+// gravity until their lifespan runs out or they leave the grid.
+const EJECT_RADIUS = 3.5;
+const EJECT_PER_FRAME = 5;
+const EJECT_SPEED_MIN = 18;
+const EJECT_SPEED_MAX = 32;
+const EJECT_TANGENT = 6;
+const EJECT_LIFETIME = 0.55;
+const EJECT_GRAVITY = 12;
+const EJECT_DRAG = 0.7;
 
 // Real bash, lifted from chp/core/dispatcher.sh.
 const SOURCE_RAW = [
@@ -124,6 +131,16 @@ function makeSprinkles(n: number): Sprinkle[] {
 
 type Cell = { ch: string; klass: string };
 
+type Ejected = {
+  x: number;
+  y: number;
+  vx: number;
+  vy: number;
+  ch: string;
+  klass: string;
+  life: number;
+};
+
 export function Donut() {
   const [rows, setRows] = useState<Cell[][]>([]);
   const [source, setSource] = useState<string>(SOURCE_RAW);
@@ -134,8 +151,8 @@ export function Donut() {
     hoverActive: false,
     mouseX: 0,
     mouseY: 0,
-    repulse: 0,
     sprinkles: makeSprinkles(34),
+    ejected: [] as Ejected[],
   });
 
   useEffect(() => {
@@ -163,9 +180,6 @@ export function Donut() {
       const st = stateRef.current;
       st.A += SPIN_A_RATE * dt;
       st.B += SPIN_B_RATE * dt;
-      const target = st.hoverActive ? 1 : 0;
-      st.repulse +=
-        (target - st.repulse) * Math.min(1, dt * REPULSE_FADE_PER_SEC);
 
       charBuf.fill(" ");
       klassBuf.fill("");
@@ -175,11 +189,8 @@ export function Donut() {
       const sinA = Math.sin(st.A);
       const cosB = Math.cos(st.B);
       const sinB = Math.sin(st.B);
-      const repulseOn = st.repulse > 0.01;
       const mx = st.mouseX;
       const my = st.mouseY;
-      const repulseStr = REPULSE_K * st.repulse;
-      const repulseR2 = REPULSE_R * REPULSE_R;
 
       let tIdx = 0;
       for (let theta = 0; theta < TWO_PI; theta += THETA_STEP, tIdx++) {
@@ -207,22 +218,8 @@ export function Donut() {
           if (wz < 0.1) continue;
           const ooz = 1 / wz;
 
-          let xp = COLS / 2 + K1 * ooz * x2;
-          let yp = ROWS / 2 - (K1 * ooz * y1) / ASPECT;
-
-          if (repulseOn) {
-            const dx = xp - mx;
-            const dy = yp - my;
-            const d2 = dx * dx + dy * dy + 0.6;
-            if (d2 < repulseR2) {
-              let f = repulseStr / d2;
-              const d = Math.sqrt(d2);
-              const maxF = REPULSE_MAX / d;
-              if (f > maxF) f = maxF;
-              xp += dx * f;
-              yp += dy * f;
-            }
-          }
+          const xp = COLS / 2 + K1 * ooz * x2;
+          const yp = ROWS / 2 - (K1 * ooz * y1) / ASPECT;
 
           const cx = Math.round(xp);
           const cy = Math.round(yp);
@@ -283,18 +280,8 @@ export function Donut() {
         const nz2 = -(cT * cP) * sinB + nz1 * cosB;
         if (nz2 >= 0) continue;
 
-        let xp = COLS / 2 + K1 * ooz * x2;
-        let yp = ROWS / 2 - (K1 * ooz * y1) / ASPECT;
-        if (repulseOn) {
-          const dx = xp - mx;
-          const dy = yp - my;
-          const d2 = dx * dx + dy * dy + 0.6;
-          if (d2 < repulseR2) {
-            const f = repulseStr / d2;
-            xp += dx * f;
-            yp += dy * f;
-          }
-        }
+        const xp = COLS / 2 + K1 * ooz * x2;
+        const yp = ROWS / 2 - (K1 * ooz * y1) / ASPECT;
         const cx = Math.round(xp);
         const cy = Math.round(yp);
         if (cx < 0 || cx >= COLS || cy < 0 || cy >= ROWS) continue;
@@ -303,6 +290,67 @@ export function Donut() {
         if (ooz < zbuf[idx] - 0.05) continue;
         charBuf[idx] = s.ch;
         klassBuf[idx] = s.klass;
+      }
+
+      // Step 1: spawn new ejected chars by stealing from cells under the
+      // cursor. Picking *after* the donut raster means we always grab the
+      // freshest visible char from each cell, including sprinkles.
+      if (st.hoverActive) {
+        for (let i = 0; i < EJECT_PER_FRAME; i++) {
+          const ang = Math.random() * Math.PI * 2;
+          const r = Math.sqrt(Math.random()) * EJECT_RADIUS;
+          const sx = mx + Math.cos(ang) * r;
+          const sy = my + Math.sin(ang) * r;
+          const ccx = Math.round(sx);
+          const ccy = Math.round(sy);
+          if (ccx < 0 || ccx >= COLS || ccy < 0 || ccy >= ROWS) continue;
+          const idx = ccy * COLS + ccx;
+          const ch = charBuf[idx];
+          if (!ch || ch === " " || ch === "." || ch === ",") continue;
+          const klass = klassBuf[idx];
+          const dx = sx - mx;
+          const dy = sy - my;
+          const d = Math.sqrt(dx * dx + dy * dy + 0.01);
+          const speed =
+            EJECT_SPEED_MIN +
+            Math.random() * (EJECT_SPEED_MAX - EJECT_SPEED_MIN);
+          const vx =
+            (dx / d) * speed + (Math.random() - 0.5) * EJECT_TANGENT;
+          const vy =
+            (dy / d) * speed + (Math.random() - 0.5) * EJECT_TANGENT;
+          st.ejected.push({ x: sx, y: sy, vx, vy, ch, klass, life: 1 });
+        }
+      }
+
+      // Step 2: integrate ejected chars and drop dead ones.
+      const live: Ejected[] = [];
+      for (const p of st.ejected) {
+        p.life -= dt / EJECT_LIFETIME;
+        if (p.life <= 0) continue;
+        const drag = 1 - dt * EJECT_DRAG;
+        p.vx *= drag;
+        p.vy *= drag;
+        p.vy += EJECT_GRAVITY * dt;
+        p.x += p.vx * dt;
+        p.y += p.vy * dt;
+        if (p.x < -1 || p.x > COLS + 1 || p.y > ROWS + 1) continue;
+        live.push(p);
+      }
+      st.ejected = live;
+
+      // Step 3: render ejected chars on top of the donut. Fade by swapping
+      // to dimmer ramp chars as life decays.
+      for (const p of st.ejected) {
+        const cx = Math.round(p.x);
+        const cy = Math.round(p.y);
+        if (cx < 0 || cx >= COLS || cy < 0 || cy >= ROWS) continue;
+        const idx = cy * COLS + cx;
+        let ch = p.ch;
+        if (p.life < 0.25) ch = ".";
+        else if (p.life < 0.45) ch = ",";
+        else if (p.life < 0.65) ch = ":";
+        charBuf[idx] = ch;
+        klassBuf[idx] = p.klass;
       }
 
       const out: Cell[][] = new Array(ROWS);

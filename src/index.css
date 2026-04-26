@@ -1064,7 +1064,6 @@ a { color: inherit; text-decoration: none; }
   display: block;
   font-feature-settings: "ss01", "ss02";
   -webkit-font-smoothing: antialiased;
-  user-select: none;
   overflow: visible;
   transform: translate(80px, -60px);
 }
@@ -1075,7 +1074,6 @@ a { color: inherit; text-decoration: none; }
   line-height: 14px;
   white-space: pre;
   margin: 0;
-  user-select: none;
   font-feature-settings: "ss01", "ss02";
   -webkit-font-smoothing: antialiased;
   color: var(--donut-pink);
@@ -1289,6 +1287,7 @@ section.s {
 @media (max-width: 900px) { .lanes { grid-template-columns: 1fr 1fr; } }
 @media (max-width: 540px) { .lanes { grid-template-columns: 1fr; } }
 .lane {
+  --lane-tone: var(--accent);
   padding: 28px 24px 32px;
   border-right: 1px solid var(--line);
   position: relative;
@@ -1301,6 +1300,10 @@ section.s {
   transform: translateY(14px);
   filter: blur(4px);
 }
+.lane-blue   { --lane-tone: var(--donut-s-blue); }
+.lane-orange { --lane-tone: var(--donut-s-orange); }
+.lane-purple { --lane-tone: var(--donut-s-purple); }
+.lane-green  { --lane-tone: var(--donut-s-green); }
 .lane:last-child { border-right: none; }
 @media (max-width: 900px) {
   .lane:nth-child(2n) { border-right: none; }
@@ -1323,16 +1326,16 @@ section.s {
   transform: translateY(-2px);
 }
 .lane:hover .lane-icon {
-  background: var(--accent);
+  background: var(--lane-tone);
   color: var(--bg-deep);
-  border-color: var(--accent);
+  border-color: var(--lane-tone);
 }
 .lane:hover .lane-bar { transform: scaleX(1); }
 .lane:hover .lane-arrow { color: var(--ink); transform: translate(2px, -50%); }
 .lane-num {
   font-family: var(--mono);
   font-size: 11px;
-  color: var(--ink-3);
+  color: var(--lane-tone);
   letter-spacing: 0.1em;
   text-transform: uppercase;
 }
@@ -1351,9 +1354,9 @@ section.s {
 .lane-icon {
   width: 40px; height: 40px;
   border-radius: 10px;
-  background: var(--bg);
-  color: var(--ink);
-  border: 1px solid var(--line);
+  background: color-mix(in oklch, var(--lane-tone) 9%, var(--bg));
+  color: var(--lane-tone);
+  border: 1px solid color-mix(in oklch, var(--lane-tone) 45%, var(--line));
   display: grid; place-items: center;
   margin-bottom: 22px;
   transition:
@@ -1366,7 +1369,7 @@ section.s {
   position: absolute;
   left: 24px; right: 24px; bottom: 0;
   height: 2px;
-  background: var(--accent);
+  background: var(--lane-tone);
   transform: scaleX(0);
   transform-origin: left center;
   transition: transform 420ms cubic-bezier(0.16, 1, 0.3, 1);

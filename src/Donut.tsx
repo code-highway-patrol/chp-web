@@ -226,9 +226,18 @@ export function Donut() {
     hoverActive: false,
     mouseX: 0,
     mouseY: 0,
+    selecting: false,
     sprinkles: makeSprinkles(34),
     ejected: [] as Ejected[],
   });
+
+  useEffect(() => {
+    const onUp = () => {
+      stateRef.current.selecting = false;
+    };
+    window.addEventListener("mouseup", onUp);
+    return () => window.removeEventListener("mouseup", onUp);
+  }, []);
 
   useEffect(() => {
     const calibrate = () => {
@@ -257,6 +266,30 @@ export function Donut() {
     const tick = (now: number) => {
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
+
+      // Freeze every frame-mutating step while the user is selecting text
+      // inside the donut — otherwise the per-frame DOM replace tears down
+      // the selection's anchor node mid-drag and you can never actually
+      // highlight a span of bash. We freeze on mousedown (selecting flag)
+      // and stay frozen as long as the resulting selection is non-collapsed
+      // inside the donut. RAF keeps ticking so we resume the instant the
+      // selection collapses or the mouse releases without a selection.
+      const sel =
+        typeof document !== "undefined" ? document.getSelection() : null;
+      const artEl = artRef.current;
+      const stateNow = stateRef.current;
+      const hasSelection =
+        !!sel &&
+        sel.rangeCount > 0 &&
+        !sel.isCollapsed &&
+        !!sel.anchorNode &&
+        !!artEl &&
+        artEl.contains(sel.anchorNode);
+      if (stateNow.selecting || hasSelection) {
+        raf = requestAnimationFrame(tick);
+        return;
+      }
+
       const st = stateRef.current;
       st.A += SPIN_A_RATE * dt;
       st.B += SPIN_B_RATE * dt;
@@ -478,8 +511,17 @@ export function Donut() {
     stateRef.current.hoverActive = false;
   };
 
+  const onMouseDown = () => {
+    stateRef.current.selecting = true;
+  };
+
   return (
-    <div className="cuffs-card" onMouseMove={onMove} onMouseLeave={onLeave}>
+    <div
+      className="cuffs-card"
+      onMouseMove={onMove}
+      onMouseLeave={onLeave}
+      onMouseDown={onMouseDown}
+    >
       <div className="cuffs-hint" aria-hidden="true">
         <span>hover me</span>
         <svg

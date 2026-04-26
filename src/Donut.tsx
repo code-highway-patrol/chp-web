@@ -30,9 +30,10 @@ const PHI_STEP = 0.025;
 const SPIN_A_RATE = 0.55;
 const SPIN_B_RATE = 0.95;
 
-const REPULSE_R = 8.5;
-const REPULSE_K = 12;
-const REPULSE_FADE_PER_SEC = 6;
+const REPULSE_R = 3.6;
+const REPULSE_K = 3.2;
+const REPULSE_MAX = 1.6;
+const REPULSE_FADE_PER_SEC = 8;
 
 // Real bash, lifted from chp/core/dispatcher.sh.
 const SOURCE_RAW = [
@@ -214,7 +215,10 @@ export function Donut() {
             const dy = yp - my;
             const d2 = dx * dx + dy * dy + 0.6;
             if (d2 < repulseR2) {
-              const f = repulseStr / d2;
+              let f = repulseStr / d2;
+              const d = Math.sqrt(d2);
+              const maxF = REPULSE_MAX / d;
+              if (f > maxF) f = maxF;
               xp += dx * f;
               yp += dy * f;
             }

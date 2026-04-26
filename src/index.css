@@ -1761,41 +1761,6 @@ footer.f {
 .tok-c { color: oklch(0.5 0.01 80); font-style: italic; }
 .tok-f { color: var(--accent); }
 
-/* ---- Stat / patrol roster ---- */
-.roster {
-  display: grid;
-  grid-template-columns: repeat(4, 1fr);
-  gap: 1px;
-  background: var(--line);
-  border: 1px solid var(--line);
-  border-radius: 12px;
-  overflow: hidden;
-}
-.roster-attached {
-  margin-top: 18px;
-}
-@media (max-width: 760px) { .roster { grid-template-columns: 1fr 1fr; } }
-.roster-cell {
-  background: var(--bg);
-  padding: 22px 22px 26px;
-}
-.roster-cell .num {
-  font-family: var(--mono);
-  font-size: 30px;
-  letter-spacing: -0.02em;
-  color: var(--ink);
-  display: flex; align-items: baseline; gap: 6px;
-}
-.roster-cell .unit { font-size: 14px; color: var(--ink-3); }
-.roster-cell .lbl {
-  font-family: var(--mono);
-  font-size: 10.5px;
-  letter-spacing: 0.12em;
-  text-transform: uppercase;
-  color: var(--ink-3);
-  margin-top: 6px;
-}
-
 /* ---- Scrolling marquee of checks ---- */
 .marquee {
   border-top: 1px solid var(--line);

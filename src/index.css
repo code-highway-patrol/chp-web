@@ -2792,18 +2792,82 @@ body.dark .tree-file.active { color: oklch(0.12 0.01 80); }
 
 /* ---- New statue form ---- */
 .new-statue { padding: 80px 0 120px; }
-.new-statue-mode {
-  display: inline-flex; gap: 8px;
-  margin-top: 20px;
-  padding: 4px;
+.upload-zone {
+  display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 12px;
+  margin-top: 24px;
+  padding: 56px 24px;
+  border: 2px dashed var(--line);
+  border-radius: 14px;
+  background: var(--bg-elev);
+  cursor: pointer;
+  text-align: center;
+  transition: border-color .15s, background .15s;
+  max-width: 720px;
+}
+.upload-zone:hover { border-color: var(--ink-2); }
+.upload-zone.drag {
+  border-color: var(--ink);
+  background: var(--bg);
+}
+.upload-zone-icon { color: var(--ink-3); }
+.upload-zone.drag .upload-zone-icon { color: var(--ink); }
+.upload-zone-title {
+  font-family: var(--mono);
+  font-size: 14px;
+  letter-spacing: 0.04em;
+  color: var(--ink);
+}
+.upload-zone-sub {
+  font-family: var(--mono);
+  font-size: 11.5px;
+  color: var(--ink-3);
+  letter-spacing: 0.04em;
+}
+.upload-zone-sub code { font-size: 11px; }
+
+.upload-preview {
+  margin-top: 24px;
   border: 1px solid var(--line);
-  border-radius: 999px;
+  border-radius: 12px;
+  overflow: hidden;
+  max-width: 720px;
+  background: var(--bg);
+}
+.upload-preview-head {
+  display: flex; justify-content: space-between; align-items: flex-start;
+  gap: 16px;
+  padding: 14px 16px;
+  border-bottom: 1px solid var(--line);
   background: var(--bg-elev);
 }
-.new-statue-mode .btn {
-  padding: 6px 16px;
+.upload-preview-title {
+  font-family: var(--mono);
   font-size: 12px;
-  border-radius: 999px;
+  letter-spacing: 0.06em;
+  color: var(--ink);
+}
+.upload-preview-sub {
+  margin-top: 4px;
+  font-family: var(--mono);
+  font-size: 11px;
+  color: var(--ink-3);
+}
+.upload-ok { color: oklch(0.55 0.13 145); }
+body.dark .upload-ok { color: oklch(0.78 0.14 145); }
+.upload-bad { color: oklch(0.55 0.18 25); }
+body.dark .upload-bad { color: oklch(0.72 0.18 25); }
+.upload-preview-tree {
+  margin: 0;
+  padding: 14px 18px;
+  font-family: var(--mono);
+  font-size: 12px;
+  line-height: 1.6;
+  color: var(--ink-2);
+  white-space: pre;
+  overflow-x: auto;
+  max-height: 360px;
+  background: var(--bg);
 }
 .new-statue-form {
   display: flex; flex-direction: column; gap: 18px;

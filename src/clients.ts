@@ -9,8 +9,10 @@ export type Client = {
   id: ClientId;
   label: string;
   icon: string;
-  cmd: [string, string, string];
-  after?: [string, string, string];
+  /** First segment renders as the binary, second as the arg, the rest as the
+   *  flag/url tail. Lets us mix structured slash commands and one-liners. */
+  cmd: string[];
+  after?: string[];
 };
 
 const favicon = (domain: string) =>
@@ -35,7 +37,12 @@ export const CLIENTS: Client[] = [
     id: "windsurf",
     label: "Windsurf",
     icon: favicon("windsurf.com"),
-    cmd: ["windsurf", "--install-extension", "chp-labs.chp"],
+    cmd: [
+      "curl",
+      "-fsSL",
+      "https://raw.githubusercontent.com/code-highway-patrol/chp/main/scripts/install-windsurf.sh",
+      "| bash",
+    ],
   },
 ];
 

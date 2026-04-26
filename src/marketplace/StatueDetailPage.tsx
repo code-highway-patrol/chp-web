@@ -11,21 +11,37 @@ function installCommand(client: ClientId, slug: string): string {
   return `chp install ${slug}`;
 }
 
-function formatLawJson(raw: string | object | undefined): string | null {
-  if (raw == null) return null;
-  if (typeof raw === "object") {
-    try {
-      return JSON.stringify(raw, null, 2);
-    } catch {
-      return null;
-    }
-  }
-  if (!raw.trim()) return null;
+function formatLawJson(raw: string | object): string {
+  if (typeof raw === "object") return JSON.stringify(raw, null, 2);
   try {
     return JSON.stringify(JSON.parse(raw), null, 2);
   } catch {
     return raw;
   }
+}
+
+// Legacy statues store a single law as body + lawJson. To render them in the
+// same file-tree explorer as law packs, synthesize the on-disk shape:
+//   <slug>/guidance.md, <slug>/law.json
+function statueFiles(statue: Statue): StatueFile[] {
+  if (Array.isArray(statue.files) && statue.files.length > 0) return statue.files;
+  const out: StatueFile[] = [];
+  if (statue.body && statue.body.trim()) {
+    out.push({
+      path: `${statue.slug}/guidance.md`,
+      content: statue.body,
+      size: statue.body.length,
+    });
+  }
+  if (statue.lawJson != null && statue.lawJson !== "") {
+    const content = formatLawJson(statue.lawJson);
+    out.push({
+      path: `${statue.slug}/law.json`,
+      content,
+      size: content.length,
+    });
+  }
+  return out;
 }
 
 export function StatueDetailPage() {
@@ -63,7 +79,8 @@ export function StatueDetailPage() {
     );
   }
 
-  const isLawPack = Array.isArray(statue.files) && statue.files.length > 0;
+  const files = statueFiles(statue);
+  const lawCount = statue.laws?.length ?? (files.some((f) => f.path.endsWith("/law.json")) ? 1 : 0);
 
   return (
     <main className="detail">
@@ -73,16 +90,16 @@ export function StatueDetailPage() {
         </Link>
         <div className="detail-head">
           <h1 className="detail-title">
-            {isLawPack && <span className="detail-folder">📁</span>}
+            <span className="detail-folder">📁</span>
             {statue.title}
           </h1>
           <div className="detail-meta">
             <span>@{statue.authorName}</span>
-            {isLawPack && statue.laws && (
+            {lawCount > 0 && (
               <>
                 <span>·</span>
                 <span>
-                  {statue.laws.length} {statue.laws.length === 1 ? "law" : "laws"}
+                  {lawCount} {lawCount === 1 ? "law" : "laws"}
                 </span>
               </>
             )}
@@ -114,20 +131,13 @@ export function StatueDetailPage() {
           )}
         </div>
 
-        {isLawPack ? (
-          <LawPackView statue={statue} />
-        ) : (
-          <LegacySingleView statue={statue} />
-        )}
+        <ExplorerView slug={statue.slug} files={files} />
       </div>
     </main>
   );
 }
 
-// ── Law pack: file-tree explorer (multi-law statues) ──────────────────────
-
-function LawPackView({ statue }: { statue: Statue }) {
-  const files = statue.files ?? [];
+function ExplorerView({ slug, files }: { slug: string; files: StatueFile[] }) {
   const defaultPath = useMemo(() => {
     return (
       files.find((f) => f.path.endsWith("/guidance.md"))?.path ??
@@ -156,7 +166,7 @@ function LawPackView({ statue }: { statue: Statue }) {
 
   return (
     <>
-      <InstallPanel slug={statue.slug} />
+      <InstallPanel slug={slug} />
 
       <div className="lawpack-explorer">
         <aside className="lawpack-tree">
@@ -215,74 +225,6 @@ function InstallPanel({ slug }: { slug: string }) {
         </button>
       </div>
     </div>
-  );
-}
-
-// ── Legacy single-law (backwards compat with body + lawJson statues) ──────
-
-function LegacySingleView({ statue }: { statue: Statue }) {
-  const [copied, setCopied] = useState<null | "guidance" | "law">(null);
-  const lawFormatted = useMemo(
-    () => formatLawJson(statue.lawJson),
-    [statue.lawJson],
-  );
-
-  const copyGuidance = async () => {
-    if (!statue.body) return;
-    try {
-      await navigator.clipboard.writeText(statue.body);
-      setCopied("guidance");
-      setTimeout(() => setCopied(null), 1600);
-    } catch {
-      /* clipboard blocked */
-    }
-  };
-  const copyLaw = async () => {
-    if (statue.lawJson == null || statue.lawJson === "") return;
-    const text =
-      lawFormatted ??
-      (typeof statue.lawJson === "string"
-        ? statue.lawJson
-        : JSON.stringify(statue.lawJson, null, 2));
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopied("law");
-      setTimeout(() => setCopied(null), 1600);
-    } catch {
-      /* clipboard blocked */
-    }
-  };
-
-  return (
-    <>
-      <InstallPanel slug={statue.slug} />
-      <div className="detail-card">
-        <div className="detail-card-head">
-          <span className="detail-card-label">guidance.md</span>
-          <button type="button" className="detail-copy" onClick={copyGuidance}>
-            {copied === "guidance" ? "copied" : "copy"}
-          </button>
-        </div>
-        <pre className="detail-body">{statue.body ?? ""}</pre>
-      </div>
-      {lawFormatted != null ? (
-        <div className="detail-card">
-          <div className="detail-card-head">
-            <span className="detail-card-label">law.json</span>
-            <button type="button" className="detail-copy" onClick={copyLaw}>
-              {copied === "law" ? "copied" : "copy"}
-            </button>
-          </div>
-          <pre className="detail-body detail-body-json">{lawFormatted}</pre>
-        </div>
-      ) : (
-        <p className="detail-law-missing">
-          This listing has no <code>law.json</code> payload. Add a string{" "}
-          <code>lawJson</code> field in <code>statues.json</code> for this
-          slug.
-        </p>
-      )}
-    </>
   );
 }
 

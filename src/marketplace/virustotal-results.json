@@ -250,5 +250,19 @@
       "timeout": 0
     },
     "permalink": "https://www.virustotal.com/gui/file/e69a01e1d375480f7f2fea09ab401eaa75b718b4f9a1facc0441a1c500d06d8d"
+  },
+  "9e7a544eaea50f89f15b6810ab1277d4fedfd62aa6c5ad9d226ca24070af99f9": {
+    "slug": "bundle-import-cost",
+    "sha256": "36a2dc994c18aef1c0b16b2bfa007a5b68a6f1732cedcc13a9fbfc3eab4f2491",
+    "contentHash": "9e7a544eaea50f89f15b6810ab1277d4fedfd62aa6c5ad9d226ca24070af99f9",
+    "scannedAt": "2026-04-26T06:22:22.135Z",
+    "stats": {
+      "malicious": 0,
+      "suspicious": 0,
+      "harmless": 0,
+      "undetected": 61,
+      "timeout": 0
+    },
+    "permalink": "https://www.virustotal.com/gui/file/36a2dc994c18aef1c0b16b2bfa007a5b68a6f1732cedcc13a9fbfc3eab4f2491"
   }
 }

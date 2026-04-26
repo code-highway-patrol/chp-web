@@ -20,8 +20,8 @@ export function Hero() {
             of your codebase.
           </h1>
           <p className="lede">
-            CHP enforces your codebase rules on every agent turn with
-            heuristic and programmatic checks at the line.
+            CHP runs your codebase rules against every change your AI
+            agent proposes, before it lands.
           </p>
 
           <div className="install">

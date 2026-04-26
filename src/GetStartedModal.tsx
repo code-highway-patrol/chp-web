@@ -56,7 +56,7 @@ export function GetStartedModal() {
           <h2 className="modal-title">
             Put a check on every
             <br />
-            agent turn.
+            change your agent makes.
           </h2>
 
           <ol className="modal-steps">
@@ -78,7 +78,7 @@ export function GetStartedModal() {
                   <span>
                     requires <code className="modal-code">bash 4+</code>
                     <span className="modal-step-req-hint">
-                      {" "}· macOS ships 3.2 — get a newer one with{" "}
+                      {" "}· macOS ships 3.2, install a newer one with{" "}
                       <code className="modal-code">brew install bash</code>
                     </span>
                   </span>
@@ -91,7 +91,7 @@ export function GetStartedModal() {
                 <div className="modal-step-title">Tell your agent the rules</div>
                 <div className="modal-step-body">
                   Custom laws live under{" "}
-                  <code className="modal-code">docs/chp/laws/</code> — not in{" "}
+                  <code className="modal-code">docs/chp/laws/</code>, not in{" "}
                   <code className="modal-code">.chprc</code>. Each law is its own
                   folder (named after the law) with three files CHP reads together.
                 </div>
@@ -113,9 +113,9 @@ export function GetStartedModal() {
               <div>
                 <div className="modal-step-title">Watch it work</div>
                 <div className="modal-step-body">
-                  Your agent codes. CHP holds every turn at the line, runs the
-                  checks, and either signs it through or hands back a fix-it
-                  ticket. You will see the verdicts inline.
+                  Your agent codes. CHP holds each proposed change, runs the
+                  checks, and either lets it through or hands back the failures
+                  to fix. Results show up inline.
                 </div>
               </div>
             </li>

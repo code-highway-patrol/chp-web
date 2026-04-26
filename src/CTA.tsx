@@ -69,7 +69,7 @@ export function CTA() {
       <div className="wrap cta-inner">
         <div>
           <h2>
-            One check on every turn.
+            One check on every change.
             <br />
             Keep main clean.
           </h2>

@@ -731,8 +731,8 @@ export function ScrollScene() {
       <div className="scene-pin">
         <div className="scene-head">
           <div>
-            <div className="kicker">turn lifecycle</div>
-            <h2>Scroll to walk one agent turn through the system.</h2>
+            <div className="kicker">change lifecycle</div>
+            <h2>Scroll to walk one change through the system.</h2>
           </div>
           <div className="hint">scroll to advance</div>
         </div>

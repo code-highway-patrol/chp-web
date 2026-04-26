@@ -16,8 +16,8 @@ const ICON = {
 const FEATS: Feat[] = [
   {
     tag: "01 frugal",
-    title: "No structured-coding-tool token bills",
-    body: "Linters do the heavy lifting. Frontier models only see the diff when they must.",
+    title: "No surprise token bills",
+    body: "Linters do most of the work. The model only reviews a diff when a lint can't decide.",
     icon: (
       <svg {...ICON} aria-hidden>
         <circle cx="12" cy="12" r="9" />
@@ -28,8 +28,8 @@ const FEATS: Feat[] = [
   },
   {
     tag: "02 streamed",
-    title: "Verdicts as the diff lands",
-    body: "Results stream back the instant a check finishes.",
+    title: "Verdicts as they land",
+    body: "Each check streams its result back the moment it finishes.",
     icon: (
       <svg {...ICON} aria-hidden>
         <path d="M4 7l5 5-5 5" />
@@ -40,8 +40,8 @@ const FEATS: Feat[] = [
   },
   {
     tag: "03 editor-native",
-    title: "Hooks into your agent",
-    body: "One CLI. Drops in as a pre‑tool hook in Claude Code, Codex, and Windsurf.",
+    title: "Plugs into your agent",
+    body: "One CLI. Installs as a plugin to Claude Code, Codex, and Windsurf.",
     icon: (
       <svg {...ICON} aria-hidden>
         <path d="M9 4v4M15 4v4" />
@@ -53,7 +53,7 @@ const FEATS: Feat[] = [
   {
     tag: "04 verifiable",
     title: "Every pass is signed",
-    body: "Each cleared turn ships with a manifest of what ran and what was patched.",
+    body: "Each accepted change ships with a record of what ran and what was patched.",
     icon: (
       <svg {...ICON} aria-hidden>
         <path d="M14 3H6a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V9z" />
@@ -65,7 +65,7 @@ const FEATS: Feat[] = [
   {
     tag: "05 policy as code",
     title: "Your standards, enforced",
-    body: "Write house rules in TS, Python, or Cue. CHP runs them with lint and types.",
+    body: "Write house rules in TypeScript, Python, or Cue. CHP runs them alongside lint and types.",
     icon: (
       <svg {...ICON} aria-hidden>
         <path d="M9 4H7a2 2 0 0 0-2 2v4a2 2 0 0 1-2 2 2 2 0 0 1 2 2v4a2 2 0 0 0 2 2h2" />
@@ -76,7 +76,7 @@ const FEATS: Feat[] = [
   {
     tag: "06 quiet",
     title: "Silent on green, loud on red",
-    body: "Stays out of the way when turns pass. You only hear from CHP when one fails.",
+    body: "Stays out of the way when checks pass. You only hear from CHP when one fails.",
     icon: (
       <svg {...ICON} aria-hidden>
         <path d="M11 5L6 9H3v6h3l5 4z" />
@@ -118,10 +118,9 @@ export function Features() {
           <div>
             <h2>Six things CHP does that a coding agent will not do alone.</h2>
             <p className="s-sub">
-              Most teams already document their conventions in AGENTS.md or a
-              skill, but those documents only describe the rules. No
-              programmatic check verifies the agent actually followed them on
-              any given turn — that is what CHP runs, on every turn.
+              Most teams already document their conventions in AGENTS.md or
+              a skill. Those documents describe the rules but never enforce
+              them. CHP runs the check on every change.
             </p>
           </div>
         </div>

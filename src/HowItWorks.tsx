@@ -16,8 +16,8 @@ const ICON_PROPS = {
 const STEPS: Step[] = [
   {
     n: "01",
-    title: "Model proposes a turn",
-    body: "Your agent drafts a diff and asks to commit.",
+    title: "Your agent proposes a change",
+    body: "It drafts a diff and asks to commit it.",
     icon: (
       <svg {...ICON_PROPS} aria-hidden>
         <path d="M14.5 4.5l5 5L8 21H3v-5z" />
@@ -29,7 +29,7 @@ const STEPS: Step[] = [
     n: "02",
     title: "CHP intercepts",
     body:
-      "The diff is held at the editor or hook layer before it touches disk.",
+      "The diff is held in the editor or git hook before it touches your files.",
     icon: (
       <svg {...ICON_PROPS} aria-hidden>
         <path d="M12 3l8 3v6c0 4.5-3.5 7.5-8 9-4.5-1.5-8-4.5-8-9V6z" />
@@ -41,7 +41,7 @@ const STEPS: Step[] = [
     n: "03",
     title: "Checks run in parallel",
     body:
-      "Lint, types, tests, security and policy all run against the proposed change set.",
+      "Lint, types, tests, security and policy all run against the proposed change.",
     icon: (
       <svg {...ICON_PROPS} aria-hidden>
         <rect x="3" y="3" width="7.5" height="7.5" rx="1.2" />
@@ -55,7 +55,7 @@ const STEPS: Step[] = [
     n: "04",
     title: "Pass or correct",
     body:
-      "Cleared turns commit. Failed turns return a structured ticket back to the agent.",
+      "Passing changes commit. Failing ones come back to the agent with a list of what to fix.",
     icon: (
       <svg {...ICON_PROPS} aria-hidden>
         <circle cx="12" cy="12" r="9" />
@@ -94,9 +94,9 @@ export function HowItWorks() {
       <div className="wrap">
         <div className="s-head">
           <div className="kicker">how it works</div>
-          <h2>Every turn gets a checkpoint.</h2>
+          <h2>Every change gets a checkpoint.</h2>
         </div>
-        <ol className="lanes" aria-label="How CHP processes a turn">
+        <ol className="lanes" aria-label="How CHP processes a change">
           {STEPS.map((s, i) => (
             <li
               className="lane"

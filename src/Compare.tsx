@@ -4,7 +4,7 @@ const ROWS: Row[] = [
   { l: "Deterministic checks", gsd: "sometimes", chp: "always" },
   { l: "Cites which rule fired", gsd: "no", chp: "yes" },
   { l: "Auto-patches small fixes", gsd: "with prompt", chp: "by default" },
-  { l: "Works on huge repos", gsd: "slow", chp: "yes, diff-scoped" },
+  { l: "Works on huge repos", gsd: "slow", chp: "yes, only re-checks the diff" },
   { l: "Open spec", gsd: "closed", chp: "MIT" },
 ];
 
@@ -19,7 +19,7 @@ export function Compare() {
         <div className="compare">
           <div className="compare-head">
             <div>Capability</div>
-            <div>Chat-driven pass</div>
+            <div>Asking the model</div>
             <div className="col-chp">CHP</div>
           </div>
           {ROWS.map((r) => (

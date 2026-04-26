@@ -71,17 +71,17 @@ const ROWS: Row[] = [
     chp: { state: "yes", note: "only re-checks the diff" },
   },
   {
-    l: "Open spec",
+    l: "Holds the line under pressure",
     desc:
-      "The rule format and check protocol are MIT-licensed. Fork it, audit it, swap implementations.",
+      "A model can be talked out of a fail by a follow-up prompt. A check returns one answer and stays there.",
     icon: (
       <svg {...ICON} aria-hidden>
-        <path d="M4 5a2 2 0 0 1 2-2h7v18H6a2 2 0 0 1-2-2z" />
-        <path d="M13 3h5a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-5" />
+        <polygon points="8,3 16,3 21,8 21,16 16,21 8,21 3,16 3,8" />
+        <path d="M7 12h10" />
       </svg>
     ),
-    gsd: { state: "no" },
-    chp: { state: "yes", note: "MIT" },
+    gsd: { state: "no", note: "with the right prompt" },
+    chp: { state: "yes", note: "the check is the check" },
   },
 ];
 

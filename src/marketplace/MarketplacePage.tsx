@@ -1,9 +1,10 @@
-import { useEffect, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import type { Statue } from "./types";
 import { ClientPicker } from "../ClientPicker";
 import { InstallCmd } from "../InstallCmd";
 import type { ClientId } from "../clients";
+import { listStatuesSorted, searchStatuesLocal } from "./statuesCatalog";
 
 const PAGE_SIZE = 12;
 
@@ -17,47 +18,52 @@ export function MarketplacePage() {
   const [error, setError] = useState<string | null>(null);
   const [client, setClient] = useState<ClientId>("claude");
   const reqId = useRef(0);
+  const debounceTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const loadFirstPage = (q: string) => {
+  const runCatalogQuery = useCallback((immediate: boolean) => {
+    if (debounceTimer.current) {
+      clearTimeout(debounceTimer.current);
+      debounceTimer.current = null;
+    }
     const id = ++reqId.current;
     setLoading(true);
     setError(null);
     setSkip(0);
 
-    const trimmed = q.trim();
-    (async () => {
+    const trimmed = query.trim();
+    const delay = immediate ? 0 : trimmed ? 280 : 0;
+    debounceTimer.current = window.setTimeout(() => {
+      debounceTimer.current = null;
+      if (id !== reqId.current) return;
       try {
-        const res = trimmed
-          ? await fetch("/api/statues/search", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ query: trimmed }),
-            })
-          : await fetch(`/api/statues?limit=${PAGE_SIZE}&skip=0`);
-        if (!res.ok) throw new Error(`${res.status}`);
-        const data = await res.json();
-        if (id !== reqId.current) return;
-        setItems(data.items ?? []);
-        setHasMore(trimmed ? false : !!data.hasMore);
+        const pool = trimmed ? searchStatuesLocal(trimmed) : listStatuesSorted();
+        const page = trimmed ? pool.slice(0, 24) : pool.slice(0, PAGE_SIZE);
+        setItems(page);
+        setHasMore(!trimmed && pool.length > PAGE_SIZE);
       } catch (err) {
-        if (id !== reqId.current) return;
         setError(err instanceof Error ? err.message : "failed to load");
       } finally {
         if (id === reqId.current) setLoading(false);
       }
-    })();
-  };
+    }, delay);
+  }, [query]);
 
-  const loadMore = async () => {
-    if (loadingMore || !hasMore) return;
+  useEffect(() => {
+    queueMicrotask(() => runCatalogQuery(false));
+    return () => {
+      if (debounceTimer.current) clearTimeout(debounceTimer.current);
+    };
+  }, [runCatalogQuery]);
+
+  const loadMore = () => {
+    if (loadingMore || !hasMore || query.trim()) return;
     setLoadingMore(true);
     const nextSkip = skip + PAGE_SIZE;
     try {
-      const res = await fetch(`/api/statues?limit=${PAGE_SIZE}&skip=${nextSkip}`);
-      if (!res.ok) throw new Error(`${res.status}`);
-      const data = await res.json();
-      setItems((prev) => [...prev, ...(data.items ?? [])]);
-      setHasMore(!!data.hasMore);
+      const pool = listStatuesSorted();
+      const next = pool.slice(nextSkip, nextSkip + PAGE_SIZE);
+      setItems((prev) => [...prev, ...next]);
+      setHasMore(nextSkip + PAGE_SIZE < pool.length);
       setSkip(nextSkip);
     } catch (err) {
       setError(err instanceof Error ? err.message : "failed to load");
@@ -65,11 +71,6 @@ export function MarketplacePage() {
       setLoadingMore(false);
     }
   };
-
-  useEffect(() => {
-    const t = setTimeout(() => loadFirstPage(query), query.trim() ? 280 : 0);
-    return () => clearTimeout(t);
-  }, [query]);
 
   return (
     <main className="market">
@@ -84,9 +85,9 @@ export function MarketplacePage() {
           CHP enforces custom laws from{" "}
           <code>docs/chp/laws/&lt;law-name&gt;/</code> — each folder has{" "}
           <code>guidance.md</code>, <code>law.json</code>, and{" "}
-          <code>verify.sh</code>. Publishing here requires both the guidance
-          markdown and the JSON together (same as that folder pair). Statues
-          are shareable copies you can drop into your repo.
+          <code>verify.sh</code>. The catalog below is shipped with this site
+          (see <code>src/marketplace/statues.json</code>). Statues are shareable
+          copies you can drop into your repo.
         </p>
 
         <div className="market-install">
@@ -105,7 +106,7 @@ export function MarketplacePage() {
               value={query}
               onChange={(e) => setQuery(e.target.value)}
               onKeyDown={(e) => {
-                if (e.key === "Enter") loadFirstPage(query);
+                if (e.key === "Enter") runCatalogQuery(true);
               }}
               placeholder="describe what you want to enforce…"
               className="market-search-input"
@@ -116,7 +117,7 @@ export function MarketplacePage() {
             </span>
           </div>
           <Link className="btn market-publish" to="/marketplace/new">
-            Publish
+            Contribute
           </Link>
         </div>
       </div>

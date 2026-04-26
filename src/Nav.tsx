@@ -34,6 +34,7 @@ export function Nav() {
         <div className="nav-links">
           <NavLink to="/" end>About</NavLink>
           <NavLink to="/marketplace">Marketplace</NavLink>
+          <NavLink to="/marketplace/new">Contribute</NavLink>
         </div>
         <div className="nav-cta">
           <ThemeToggle />
@@ -55,7 +56,7 @@ export function Nav() {
                       navigate("/marketplace/new");
                     }}
                   >
-                    Publish a statue
+                    Contribute a statue
                   </button>
                   <button
                     onClick={async () => {

@@ -32,14 +32,14 @@ export function SignInPage() {
   return (
     <main className="auth-page">
       <div className="auth-card">
-        <div className="auth-eyebrow">access the marketplace</div>
+        <div className="auth-eyebrow">optional account</div>
         <h1 className="auth-title">
-          Sign in to publish<br />and star statues.
+          Sign in with<br />Google or GitHub.
         </h1>
         <p className="auth-sub">
-          Statues bundle <code>guidance.md</code> and <code>law.json</code> for
-          the marketplace. You need an account to publish your own or star the
-          ones you depend on.
+          The marketplace catalog is static and public — no account needed to
+          browse. Sign in here only if we wire this session to future features;
+          today, starring on a statue page is saved locally in your browser.
         </p>
         {!isSupabaseConfigured && (
           <p className="auth-error" role="status">

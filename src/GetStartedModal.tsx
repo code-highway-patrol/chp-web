@@ -99,9 +99,10 @@ export function GetStartedModal() {
     law.json      # severity, hooks, checks
     verify.sh     # runs the atomic check runner`}</pre>
                 <div className="modal-step-body" style={{ marginTop: 10 }}>
-                  The marketplace publish flow asks for the same pair on disk:{" "}
-                  <code className="modal-code">guidance.md</code> content plus{" "}
-                  <code className="modal-code">law.json</code> (valid JSON object).
+                  The site marketplace uses the same pair in{" "}
+                  <code className="modal-code">src/marketplace/statues.json</code>{" "}
+                  (<code className="modal-code">body</code> plus string{" "}
+                  <code className="modal-code">lawJson</code>).
                 </div>
               </div>
             </li>

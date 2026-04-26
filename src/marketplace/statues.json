@@ -1,0 +1,274 @@
+[
+  {
+    "_id": "mock00000000000000000001",
+    "slug": "no-console-in-prod",
+    "title": "No console.log in production paths",
+    "body": "- Strip debug logs before merge\n- Allow console.error for real failures",
+    "tags": [
+      "javascript",
+      "logging",
+      "quality"
+    ],
+    "authorId": "mock-user-1",
+    "authorName": "patrol-bot",
+    "createdAt": "2026-04-24T04:36:18.634Z",
+    "stars": 42,
+    "lawJson": "{\n  \"name\": \"no-console-in-prod\",\n  \"intent\": \"No console.log in production paths\",\n  \"severity\": \"error\",\n  \"failures\": 0,\n  \"tightening_level\": 0,\n  \"hooks\": [\n    \"pre-tool\"\n  ],\n  \"enabled\": true,\n  \"checks\": []\n}"
+  },
+  {
+    "_id": "mock00000000000000000002",
+    "slug": "async-timeout-required",
+    "title": "Every async call needs a timeout",
+    "body": "- Wrap external I/O with AbortSignal or Promise.race\n- Document chosen limits in PRs",
+    "tags": [
+      "typescript",
+      "async",
+      "reliability"
+    ],
+    "authorId": "mock-user-2",
+    "authorName": "highway-eng",
+    "createdAt": "2026-04-21T04:36:18.634Z",
+    "stars": 38,
+    "lawJson": "{\n  \"name\": \"async-timeout-required\",\n  \"intent\": \"Every async call needs a timeout\",\n  \"severity\": \"error\",\n  \"failures\": 0,\n  \"tightening_level\": 0,\n  \"hooks\": [\n    \"pre-tool\"\n  ],\n  \"enabled\": true,\n  \"checks\": []\n}"
+  },
+  {
+    "_id": "mock00000000000000000003",
+    "slug": "match-test-style",
+    "title": "Match existing __tests__ style",
+    "body": "- Same matchers and file layout as neighboring specs\n- No snapshot churn for incidental whitespace",
+    "tags": [
+      "testing",
+      "vitest"
+    ],
+    "authorId": "mock-user-1",
+    "authorName": "patrol-bot",
+    "createdAt": "2026-04-18T04:36:18.634Z",
+    "stars": 31,
+    "lawJson": "{\n  \"name\": \"match-test-style\",\n  \"intent\": \"Match existing __tests__ style\",\n  \"severity\": \"error\",\n  \"failures\": 0,\n  \"tightening_level\": 0,\n  \"hooks\": [\n    \"pre-tool\"\n  ],\n  \"enabled\": true,\n  \"checks\": []\n}"
+  },
+  {
+    "_id": "mock00000000000000000004",
+    "slug": "no-any-typescript",
+    "title": "No any in TypeScript",
+    "body": "- Prefer unknown + narrowing\n- eslint rule is the source of truth",
+    "tags": [
+      "typescript",
+      "strict"
+    ],
+    "authorId": "mock-user-3",
+    "authorName": "typesmith",
+    "createdAt": "2026-04-16T04:36:18.634Z",
+    "stars": 56,
+    "lawJson": "{\n  \"name\": \"no-any-typescript\",\n  \"intent\": \"No any in TypeScript\",\n  \"severity\": \"error\",\n  \"failures\": 0,\n  \"tightening_level\": 0,\n  \"hooks\": [\n    \"pre-tool\"\n  ],\n  \"enabled\": true,\n  \"checks\": []\n}"
+  },
+  {
+    "_id": "mock00000000000000000005",
+    "slug": "law-folder-layout",
+    "title": "CHP laws live under docs/chp/laws",
+    "body": "- Each law is a folder: guidance.md, law.json, verify.sh\n- Not stored in .chprc",
+    "tags": [
+      "chp",
+      "docs"
+    ],
+    "authorId": "mock-user-2",
+    "authorName": "highway-eng",
+    "createdAt": "2026-04-14T04:36:18.634Z",
+    "stars": 27,
+    "lawJson": "{\n  \"name\": \"law-folder-layout\",\n  \"intent\": \"CHP laws live under docs/chp/laws\",\n  \"severity\": \"error\",\n  \"failures\": 0,\n  \"tightening_level\": 0,\n  \"hooks\": [\n    \"pre-tool\"\n  ],\n  \"enabled\": true,\n  \"checks\": []\n}"
+  },
+  {
+    "_id": "mock00000000000000000006",
+    "slug": "semantic-html-nav",
+    "title": "Semantic HTML for navigation",
+    "body": "- Use nav + aria-current for active route\n- Keyboard focus order matches visual order",
+    "tags": [
+      "a11y",
+      "html"
+    ],
+    "authorId": "mock-user-4",
+    "authorName": "a11y-allen",
+    "createdAt": "2026-04-12T04:36:18.634Z",
+    "stars": 19,
+    "lawJson": "{\n  \"name\": \"semantic-html-nav\",\n  \"intent\": \"Semantic HTML for navigation\",\n  \"severity\": \"error\",\n  \"failures\": 0,\n  \"tightening_level\": 0,\n  \"hooks\": [\n    \"pre-tool\"\n  ],\n  \"enabled\": true,\n  \"checks\": []\n}"
+  },
+  {
+    "_id": "mock00000000000000000007",
+    "slug": "env-no-secrets",
+    "title": "Never commit API keys",
+    "body": "- Use .env locally\n- CI uses hosted secrets only",
+    "tags": [
+      "security",
+      "env"
+    ],
+    "authorId": "mock-user-1",
+    "authorName": "patrol-bot",
+    "createdAt": "2026-04-11T04:36:18.634Z",
+    "stars": 61,
+    "lawJson": "{\n  \"name\": \"env-no-secrets\",\n  \"intent\": \"Never commit API keys\",\n  \"severity\": \"error\",\n  \"failures\": 0,\n  \"tightening_level\": 0,\n  \"hooks\": [\n    \"pre-tool\"\n  ],\n  \"enabled\": true,\n  \"checks\": []\n}"
+  },
+  {
+    "_id": "mock00000000000000000008",
+    "slug": "pr-small-diffs",
+    "title": "Keep PRs review-sized",
+    "body": "- Prefer stacked PRs over one mega-diff\n- Link to ticket or ADR when behavior changes",
+    "tags": [
+      "process",
+      "git"
+    ],
+    "authorId": "mock-user-5",
+    "authorName": "merge-maria",
+    "createdAt": "2026-04-08T04:36:18.634Z",
+    "stars": 22,
+    "lawJson": "{\n  \"name\": \"pr-small-diffs\",\n  \"intent\": \"Keep PRs review-sized\",\n  \"severity\": \"error\",\n  \"failures\": 0,\n  \"tightening_level\": 0,\n  \"hooks\": [\n    \"pre-tool\"\n  ],\n  \"enabled\": true,\n  \"checks\": []\n}"
+  },
+  {
+    "_id": "mock00000000000000000009",
+    "slug": "responsive-touch-targets",
+    "title": "Touch targets at least 44px",
+    "body": "- Applies to icon buttons on mobile\n- Document exceptions in code comment",
+    "tags": [
+      "css",
+      "mobile",
+      "a11y"
+    ],
+    "authorId": "mock-user-4",
+    "authorName": "a11y-allen",
+    "createdAt": "2026-04-06T04:36:18.634Z",
+    "stars": 15,
+    "lawJson": "{\n  \"name\": \"responsive-touch-targets\",\n  \"intent\": \"Touch targets at least 44px\",\n  \"severity\": \"error\",\n  \"failures\": 0,\n  \"tightening_level\": 0,\n  \"hooks\": [\n    \"pre-tool\"\n  ],\n  \"enabled\": true,\n  \"checks\": []\n}"
+  },
+  {
+    "_id": "mock0000000000000000000a",
+    "slug": "no-drive-by-refactors",
+    "title": "No drive-by refactors in bugfix PRs",
+    "body": "- Diff should map to the stated goal\n- Cleanup belongs in its own change",
+    "tags": [
+      "process"
+    ],
+    "authorId": "mock-user-5",
+    "authorName": "merge-maria",
+    "createdAt": "2026-04-04T04:36:18.634Z",
+    "stars": 33,
+    "lawJson": "{\n  \"name\": \"no-drive-by-refactors\",\n  \"intent\": \"No drive-by refactors in bugfix PRs\",\n  \"severity\": \"error\",\n  \"failures\": 0,\n  \"tightening_level\": 0,\n  \"hooks\": [\n    \"pre-tool\"\n  ],\n  \"enabled\": true,\n  \"checks\": []\n}"
+  },
+  {
+    "_id": "mock0000000000000000000b",
+    "slug": "prefer-fetch-over-axios",
+    "title": "Prefer fetch for simple JSON APIs",
+    "body": "- One less dependency\n- Centralize error parsing in a helper if needed",
+    "tags": [
+      "http",
+      "javascript"
+    ],
+    "authorId": "mock-user-3",
+    "authorName": "typesmith",
+    "createdAt": "2026-04-02T04:36:18.635Z",
+    "stars": 11,
+    "lawJson": "{\n  \"name\": \"prefer-fetch-over-axios\",\n  \"intent\": \"Prefer fetch for simple JSON APIs\",\n  \"severity\": \"error\",\n  \"failures\": 0,\n  \"tightening_level\": 0,\n  \"hooks\": [\n    \"pre-tool\"\n  ],\n  \"enabled\": true,\n  \"checks\": []\n}"
+  },
+  {
+    "_id": "mock0000000000000000000c",
+    "slug": "images-lazy-and-sized",
+    "title": "Images: dimensions + lazy",
+    "body": "- Set width/height to avoid CLS\n- loading=\"lazy\" below the fold",
+    "tags": [
+      "performance",
+      "html"
+    ],
+    "authorId": "mock-user-2",
+    "authorName": "highway-eng",
+    "createdAt": "2026-03-31T04:36:18.635Z",
+    "stars": 18,
+    "lawJson": "{\n  \"name\": \"images-lazy-and-sized\",\n  \"intent\": \"Images: dimensions + lazy\",\n  \"severity\": \"error\",\n  \"failures\": 0,\n  \"tightening_level\": 0,\n  \"hooks\": [\n    \"pre-tool\"\n  ],\n  \"enabled\": true,\n  \"checks\": []\n}"
+  },
+  {
+    "_id": "mock0000000000000000000d",
+    "slug": "error-states-user-facing",
+    "title": "User-facing error copy",
+    "body": "- No raw stack traces in toast\n- Offer retry when safe",
+    "tags": [
+      "ux",
+      "errors"
+    ],
+    "authorId": "mock-user-4",
+    "authorName": "a11y-allen",
+    "createdAt": "2026-03-29T04:36:18.635Z",
+    "stars": 9,
+    "lawJson": "{\n  \"name\": \"error-states-user-facing\",\n  \"intent\": \"User-facing error copy\",\n  \"severity\": \"error\",\n  \"failures\": 0,\n  \"tightening_level\": 0,\n  \"hooks\": [\n    \"pre-tool\"\n  ],\n  \"enabled\": true,\n  \"checks\": []\n}"
+  },
+  {
+    "_id": "mock0000000000000000000e",
+    "slug": "sql-parameterized-only",
+    "title": "SQL must be parameterized",
+    "body": "- No string-concatenated WHERE clauses\n- ORM raw queries still bind params",
+    "tags": [
+      "security",
+      "sql"
+    ],
+    "authorId": "mock-user-1",
+    "authorName": "patrol-bot",
+    "createdAt": "2026-03-27T04:36:18.635Z",
+    "stars": 47,
+    "lawJson": "{\n  \"name\": \"sql-parameterized-only\",\n  \"intent\": \"SQL must be parameterized\",\n  \"severity\": \"error\",\n  \"failures\": 0,\n  \"tightening_level\": 0,\n  \"hooks\": [\n    \"pre-tool\"\n  ],\n  \"enabled\": true,\n  \"checks\": []\n}"
+  },
+  {
+    "_id": "mock0000000000000000000f",
+    "slug": "comments-why-not-what",
+    "title": "Comments explain why, not what",
+    "body": "- Code shows what happens\n- Comment links to ticket for weird edge cases",
+    "tags": [
+      "style",
+      "docs"
+    ],
+    "authorId": "mock-user-3",
+    "authorName": "typesmith",
+    "createdAt": "2026-03-25T04:36:18.635Z",
+    "stars": 14,
+    "lawJson": "{\n  \"name\": \"comments-why-not-what\",\n  \"intent\": \"Comments explain why, not what\",\n  \"severity\": \"error\",\n  \"failures\": 0,\n  \"tightening_level\": 0,\n  \"hooks\": [\n    \"pre-tool\"\n  ],\n  \"enabled\": true,\n  \"checks\": []\n}"
+  },
+  {
+    "_id": "mock00000000000000000010",
+    "slug": "rate-limit-sensitive-routes",
+    "title": "Rate-limit auth-sensitive routes",
+    "body": "- Login, password reset, token mint\n- Log and alert on threshold",
+    "tags": [
+      "security",
+      "api"
+    ],
+    "authorId": "mock-user-1",
+    "authorName": "patrol-bot",
+    "createdAt": "2026-03-22T04:36:18.635Z",
+    "stars": 29,
+    "lawJson": "{\n  \"name\": \"rate-limit-sensitive-routes\",\n  \"intent\": \"Rate-limit auth-sensitive routes\",\n  \"severity\": \"error\",\n  \"failures\": 0,\n  \"tightening_level\": 0,\n  \"hooks\": [\n    \"pre-tool\"\n  ],\n  \"enabled\": true,\n  \"checks\": []\n}"
+  },
+  {
+    "_id": "mock00000000000000000011",
+    "slug": "dark-mode-respect-pref",
+    "title": "Respect prefers-color-scheme",
+    "body": "- Default theme follows OS\n- Manual toggle stored in localStorage",
+    "tags": [
+      "css",
+      "ux"
+    ],
+    "authorId": "mock-user-4",
+    "authorName": "a11y-allen",
+    "createdAt": "2026-03-19T04:36:18.635Z",
+    "stars": 21,
+    "lawJson": "{\n  \"name\": \"dark-mode-respect-pref\",\n  \"intent\": \"Respect prefers-color-scheme\",\n  \"severity\": \"error\",\n  \"failures\": 0,\n  \"tightening_level\": 0,\n  \"hooks\": [\n    \"pre-tool\"\n  ],\n  \"enabled\": true,\n  \"checks\": []\n}"
+  },
+  {
+    "_id": "mock00000000000000000012",
+    "slug": "bundle-import-cost",
+    "title": "Watch import cost in client bundles",
+    "body": "- Prefer dynamic import for heavy admin-only panels\n- Check rollup output after adding deps",
+    "tags": [
+      "performance",
+      "vite"
+    ],
+    "authorId": "mock-user-2",
+    "authorName": "highway-eng",
+    "createdAt": "2026-03-17T04:36:18.635Z",
+    "stars": 16,
+    "lawJson": "{\n  \"name\": \"bundle-import-cost\",\n  \"intent\": \"Watch import cost in client bundles\",\n  \"severity\": \"error\",\n  \"failures\": 0,\n  \"tightening_level\": 0,\n  \"hooks\": [\n    \"pre-tool\"\n  ],\n  \"enabled\": true,\n  \"checks\": []\n}"
+  }
+]

@@ -2,6 +2,7 @@ import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth, authedFetch } from "../auth/useAuth";
 import { invalidateCatalog } from "./statuesCatalog";
+import { validatePublishPayload, type PublishPayload } from "./validateStatue";
 import type { Statue } from "./types";
 
 type Mode = "single" | "pack";
@@ -48,16 +49,13 @@ export function NewStatuePage() {
     setSubmitting(true);
 
     try {
-      let payload: Record<string, unknown> = {
+      const payload: PublishPayload & { description?: string; tags?: string[] } = {
         title: title.trim(),
         description: description.trim(),
         tags: tagsRaw.split(",").map((s) => s.trim()).filter(Boolean),
       };
 
       if (mode === "single") {
-        if (!body.trim()) throw new Error("guidance body is required");
-        if (!lawJson.trim()) throw new Error("law.json is required");
-        try { JSON.parse(lawJson); } catch { throw new Error("law.json is not valid JSON"); }
         payload.body = body;
         payload.lawJson = lawJson;
       } else {
@@ -67,13 +65,13 @@ export function NewStatuePage() {
         } catch {
           throw new Error("pack JSON is not valid JSON");
         }
-        if (!Array.isArray(parsed.files) || parsed.files.length === 0) {
-          throw new Error("pack JSON must include a non-empty files array");
-        }
         payload.files = parsed.files;
         if (Array.isArray(parsed.laws)) payload.laws = parsed.laws;
         if (typeof parsed.readme === "string") payload.readme = parsed.readme;
       }
+
+      const validation = validatePublishPayload(payload);
+      if (!validation.ok) throw new Error(validation.error);
 
       const res = await authedFetch("/api/statues", {
         method: "POST",

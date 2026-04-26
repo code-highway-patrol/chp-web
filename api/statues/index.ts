@@ -2,19 +2,14 @@ import type { VercelRequest, VercelResponse } from "@vercel/node";
 import { getDb, STATUES } from "../_lib/mongo.js";
 import { requireUser } from "../_lib/auth.js";
 import { slugify } from "../_lib/slug.js";
+import {
+  validatePublishPayload,
+  type PublishPayload,
+  type StatueFile,
+} from "../../src/marketplace/validateStatue.js";
 
-type StatueFile = { path: string; content: string; size?: number };
-
-type Body = {
-  title?: unknown;
-  description?: unknown;
-  tags?: unknown;
+type Body = PublishPayload & {
   authorName?: unknown;
-  body?: unknown;
-  lawJson?: unknown;
-  files?: unknown;
-  laws?: unknown;
-  readme?: unknown;
 };
 
 function asStringArray(v: unknown, max = 12): string[] {
@@ -22,8 +17,8 @@ function asStringArray(v: unknown, max = 12): string[] {
   return v.filter((x): x is string => typeof x === "string").slice(0, max);
 }
 
-function asFiles(v: unknown): StatueFile[] | undefined {
-  if (!Array.isArray(v)) return undefined;
+function normalizeFiles(v: unknown): StatueFile[] {
+  if (!Array.isArray(v)) return [];
   const out: StatueFile[] = [];
   for (const item of v) {
     if (!item || typeof item !== "object") continue;
@@ -35,7 +30,7 @@ function asFiles(v: unknown): StatueFile[] | undefined {
       size: typeof f.size === "number" ? f.size : f.content.length,
     });
   }
-  return out.length > 0 ? out : undefined;
+  return out;
 }
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
@@ -57,26 +52,23 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     if (!user) return res.status(401).json({ error: "unauthorized" });
 
     const b = (req.body ?? {}) as Body;
-    if (typeof b.title !== "string" || !b.title.trim()) {
-      return res.status(400).json({ error: "title required" });
-    }
 
-    const files = asFiles(b.files);
-    const hasBody = typeof b.body === "string" && b.body.trim().length > 0;
-    const hasLawJson = typeof b.lawJson === "string" && (b.lawJson as string).trim().length > 0;
-    if (!files && !hasBody && !hasLawJson) {
-      return res.status(400).json({ error: "either files[] or body+lawJson required" });
-    }
+    const validation = validatePublishPayload(b);
+    if (!validation.ok) return res.status(400).json({ error: validation.error });
 
-    const slug = slugify(b.title);
+    const slug = slugify(b.title as string);
     if (!slug) return res.status(400).json({ error: "title slugged to empty" });
 
     const existing = await col.findOne({ slug });
     if (existing) return res.status(409).json({ error: "slug already exists" });
 
+    const files = normalizeFiles(b.files);
+    const hasBody = typeof b.body === "string" && (b.body as string).trim().length > 0;
+    const hasLawJson = typeof b.lawJson === "string" && (b.lawJson as string).trim().length > 0;
+
     const doc: Record<string, unknown> = {
       slug,
-      title: b.title.trim(),
+      title: (b.title as string).trim(),
       description: typeof b.description === "string" ? b.description : "",
       tags: asStringArray(b.tags),
       authorId: user.id,
@@ -89,7 +81,7 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     };
     if (hasBody) doc.body = b.body;
     if (hasLawJson) doc.lawJson = b.lawJson;
-    if (files) doc.files = files;
+    if (files.length > 0) doc.files = files;
     if (Array.isArray(b.laws)) doc.laws = b.laws;
     if (typeof b.readme === "string" && b.readme.trim()) doc.readme = b.readme;
 

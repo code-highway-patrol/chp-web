@@ -7,10 +7,12 @@ import type { ClientId } from "../clients";
 import { listStatuesSorted, searchStatues } from "./statuesCatalog";
 import { isSlugStarred } from "./localStarPreferences";
 import { VirusTotalBadge } from "./VirusTotalBadge";
+import { useAuth } from "../auth/useAuth";
 
 const PAGE_SIZE = 12;
 
 export function MarketplacePage() {
+  const { user } = useAuth();
   const [query, setQuery] = useState("");
   const [items, setItems] = useState<Statue[]>([]);
   const [hasMore, setHasMore] = useState(false);
@@ -121,6 +123,15 @@ export function MarketplacePage() {
               {query.trim() ? "↵" : "press ↵ to search"}
             </span>
           </div>
+          {user ? (
+            <Link className="btn market-publish" to="/marketplace/new">
+              + Publish
+            </Link>
+          ) : (
+            <Link className="btn btn-ghost market-publish" to="/auth">
+              Sign in to publish
+            </Link>
+          )}
         </div>
       </div>
       <div className="wrap">

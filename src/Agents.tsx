@@ -27,10 +27,10 @@ const AGENTS: Agent[] = [
     body: "When a law trips repeatedly, rewrites the guidance the model reads so the next turn does not repeat the same mistake.",
   },
   {
-    badge: "F",
-    name: "Fixer",
-    role: "patches in place",
-    body: "Closes the loop on small, mechanical failures. The diff lands cleared, no human turn required.",
+    badge: "T",
+    name: "Technician",
+    role: "applies the fix",
+    body: "When a law has auto-fix on, the Technician generates the patch from the same guidance the Detective wrote. Small, scoped diffs — no human turn required.",
   },
 ];
 

@@ -31,8 +31,13 @@ const ASPECT = 14 / 7.5;
 const THETA_STEP = 0.1;
 const PHI_STEP = 0.025;
 
-const SPIN_A_RATE = 0.22;
-const SPIN_B_RATE = 0.38;
+// Pitch (A) wobbles within a small range instead of accumulating, so the
+// donut never flips upside-down and stays recognizable as a donut. Yaw (B)
+// still rotates fully so the source-code skin scrolls all the way around.
+const SPIN_A_RATE = 0.55;
+const SPIN_B_RATE = 0.22;
+const PITCH_BASE = 0.32;
+const PITCH_AMPLITUDE = 0.22;
 
 // Hover ejects chars off the donut surface like sparks. Newly spawned chars
 // inherit their color from the cell they came from and arc outward under
@@ -281,8 +286,9 @@ export function Donut() {
       klassBuf.fill("");
       zbuf.fill(0);
 
-      const cosA = Math.cos(st.A);
-      const sinA = Math.sin(st.A);
+      const pitch = PITCH_BASE + Math.sin(st.A) * PITCH_AMPLITUDE;
+      const cosA = Math.cos(pitch);
+      const sinA = Math.sin(pitch);
       const cosB = Math.cos(st.B);
       const sinB = Math.sin(st.B);
       const mx = st.mouseX;

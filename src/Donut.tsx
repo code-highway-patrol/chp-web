@@ -102,6 +102,75 @@ function pretextRoundTrip(rawRow: string, font: string): string {
   return materialized || rawRow;
 }
 
+// Canvas-measured ink density per char — the visual "brightness" of a
+// glyph. Combined with pretext's width check, drives the luminance ramp
+// that maps every surface point to its character.
+let bCanvas: HTMLCanvasElement | null = null;
+let bCtx: CanvasRenderingContext2D | null = null;
+
+function inkDensity(ch: string, font: string): number {
+  if (!bCanvas) {
+    bCanvas = document.createElement("canvas");
+    bCanvas.width = 28;
+    bCanvas.height = 28;
+    bCtx = bCanvas.getContext("2d", { willReadFrequently: true });
+  }
+  if (!bCtx) return 0;
+  bCtx.clearRect(0, 0, 28, 28);
+  bCtx.font = font;
+  bCtx.fillStyle = "#fff";
+  bCtx.textBaseline = "middle";
+  bCtx.fillText(ch, 1, 14);
+  const { data } = bCtx.getImageData(0, 0, 28, 28);
+  let sum = 0;
+  for (let i = 3; i < data.length; i += 4) sum += data[i];
+  return sum / (255 * 28 * 28);
+}
+
+type RampEntry = { ch: string; b: number };
+
+const RAMP_BASE = " .,-_~:;!=+*#%@&$";
+
+function buildCandidates(): string {
+  const set = new Set<string>(RAMP_BASE);
+  for (const ch of SOURCE_RAW) set.add(ch);
+  set.delete("\n");
+  return Array.from(set).join("");
+}
+
+// Build the full ramp: width-validate every candidate via pretext, ink-
+// measure via canvas, sort ascending by ink. The donut surface is then
+// drawn entirely by indexing this ramp with computed luminance.
+function buildRamp(font: string): {
+  ramp: RampEntry[];
+  brightnessOf: Map<string, number>;
+} {
+  const candidates = buildCandidates();
+  const entries: RampEntry[] = [];
+  const map = new Map<string, number>();
+  for (const ch of candidates) {
+    const prepared = prepareWithSegments(ch, font);
+    const w = prepared.widths[0] ?? 0;
+    if (w <= 0 && ch !== " ") continue;
+    const b = inkDensity(ch, font);
+    entries.push({ ch, b });
+    map.set(ch, b);
+  }
+  entries.sort((a, b) => a.b - b.b);
+  if (!entries.length) entries.push({ ch: " ", b: 0 });
+  return { ramp: entries, brightnessOf: map };
+}
+
+function pickFromRamp(ramp: RampEntry[], lum: number): string {
+  if (lum <= 0.04) return " ";
+  const clamped = lum >= 1 ? 1 : lum;
+  const idx = Math.min(
+    ramp.length - 1,
+    Math.round(clamped * (ramp.length - 1)),
+  );
+  return ramp[idx].ch;
+}
+
 const SPRINKLE_DEFS: { ch: string; klass: string }[] = [
   { ch: "/", klass: "donut-s-red" },
   { ch: "\\", klass: "donut-s-blue" },
@@ -141,9 +210,15 @@ type Ejected = {
   life: number;
 };
 
+type Calibration = {
+  source: string;
+  ramp: RampEntry[];
+  brightnessOf: Map<string, number>;
+};
+
 export function Donut() {
   const [rows, setRows] = useState<Cell[][]>([]);
-  const [source, setSource] = useState<string>(SOURCE_RAW);
+  const [calib, setCalib] = useState<Calibration | null>(null);
   const artRef = useRef<HTMLDivElement>(null);
   const stateRef = useRef({
     A: 0.4,
@@ -156,13 +231,18 @@ export function Donut() {
   });
 
   useEffect(() => {
-    const calibrate = () => setSource(buildSourceString(FONT));
+    const calibrate = () => {
+      const { ramp, brightnessOf } = buildRamp(FONT);
+      const source = buildSourceString(FONT);
+      setCalib({ source, ramp, brightnessOf });
+    };
     calibrate();
     if (document.fonts?.ready) void document.fonts.ready.then(calibrate);
   }, []);
 
   useEffect(() => {
-    if (!source) return;
+    if (!calib) return;
+    const { source, ramp, brightnessOf } = calib;
     const sourceLen = source.length;
 
     let raf = 0;
@@ -235,20 +315,22 @@ export function Donut() {
           const L = (ny1 - nz2) * INV_SQRT2;
           if (L <= 0) continue;
 
-          // Brightness-gated char: dim rim falls back to a small ramp, lit
-          // surface samples the bash source so the donut "wears" CHP code.
-          // Code flows along phi (the major ring) so consecutive cells along
-          // the donut's long axis are consecutive source chars, leaving
-          // recognizable runs of bash visible on the surface.
-          let ch: string;
-          if (L < 0.12) ch = ".";
-          else if (L < 0.22) ch = ",";
-          else if (L < 0.32) ch = "~";
-          else {
-            const codeIdx = (tIdx * 7 + pIdx) % sourceLen;
-            const sc = source[codeIdx];
-            ch = sc === " " || !sc ? ":" : sc;
-          }
+          // Pretext-driven char pick: every cell's char comes from the
+          // ink-measured luminance ramp. If the bash source's char at this
+          // (theta, phi) happens to match the surface luminance closely
+          // enough, the donut "wears" that source char instead — so the
+          // skin is real bash where it visually fits, and ramp chars
+          // everywhere else, all measured by pretext + canvas.
+          const lumNorm = L >= 1.414 ? 1 : L * 0.7071;
+          const codeIdx = (tIdx * 7 + pIdx) % sourceLen;
+          const sc = source[codeIdx];
+          const scB = sc ? (brightnessOf.get(sc) ?? -1) : -1;
+          const fits =
+            sc !== undefined &&
+            sc !== " " &&
+            scB >= 0 &&
+            Math.abs(scB - lumNorm) < 0.18;
+          const ch = fits ? sc : pickFromRamp(ramp, lumNorm);
 
           zbuf[idx] = ooz;
           charBuf[idx] = ch;
@@ -338,17 +420,15 @@ export function Donut() {
       }
       st.ejected = live;
 
-      // Step 3: render ejected chars on top of the donut. Fade by swapping
-      // to dimmer ramp chars as life decays.
+      // Step 3: render ejected chars on top of the donut. As life decays,
+      // step each spark down through the pretext-calibrated ramp so it
+      // fades through the same brightness gradient the donut surface uses.
       for (const p of st.ejected) {
         const cx = Math.round(p.x);
         const cy = Math.round(p.y);
         if (cx < 0 || cx >= COLS || cy < 0 || cy >= ROWS) continue;
         const idx = cy * COLS + cx;
-        let ch = p.ch;
-        if (p.life < 0.25) ch = ".";
-        else if (p.life < 0.45) ch = ",";
-        else if (p.life < 0.65) ch = ":";
+        const ch = p.life > 0.7 ? p.ch : pickFromRamp(ramp, p.life * 0.55);
         charBuf[idx] = ch;
         klassBuf[idx] = p.klass;
       }
@@ -380,7 +460,7 @@ export function Donut() {
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, [source]);
+  }, [calib]);
 
   const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = artRef.current;

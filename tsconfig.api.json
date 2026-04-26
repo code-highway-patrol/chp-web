@@ -17,5 +17,5 @@
     "noUncheckedSideEffectImports": true,
     "esModuleInterop": true
   },
-  "include": ["api"]
+  "include": ["api", "law-json-normalize.ts"]
 }

@@ -81,8 +81,12 @@ export function MarketplacePage() {
           should already have.
         </h1>
         <p className="market-sub">
-          Statues are .chprc rule packs the community wrote. Drop one in your
-          .chprc and CHP starts enforcing it on every agent turn.
+          CHP enforces custom laws from{" "}
+          <code>docs/chp/laws/&lt;law-name&gt;/</code> — each folder has{" "}
+          <code>guidance.md</code>, <code>law.json</code>, and{" "}
+          <code>verify.sh</code>. Publishing here requires both the guidance
+          markdown and the JSON together (same as that folder pair). Statues
+          are shareable copies you can drop into your repo.
         </p>
 
         <div className="market-install">
@@ -146,7 +150,7 @@ export function MarketplacePage() {
 }
 
 function StatueCard({ statue }: { statue: Statue }) {
-  const blurb = firstParagraph(statue.body);
+  const blurb = firstParagraph(statue);
   return (
     <Link className="statue-card" to={`/marketplace/${statue.slug}`}>
       <div className="statue-card-head">
@@ -168,8 +172,24 @@ function StatueCard({ statue }: { statue: Statue }) {
   );
 }
 
-function firstParagraph(body: string): string {
-  const lines = body.split("\n").filter((l) => l.trim() && !l.startsWith("#"));
-  const text = lines.slice(0, 3).join(" ").replace(/^-\s*/gm, "");
+function firstParagraph(statue: Statue): string {
+  const lines = statue.body
+    .split("\n")
+    .filter((l) => l.trim() && !l.startsWith("#"));
+  const fromBody = lines
+    .slice(0, 3)
+    .join(" ")
+    .replace(/^-\s*/gm, "");
+  const fromLaw = statue.lawJson
+    ? (() => {
+        try {
+          const o = JSON.parse(statue.lawJson) as { intent?: string };
+          return typeof o.intent === "string" ? o.intent : "";
+        } catch {
+          return "";
+        }
+      })()
+    : "";
+  const text = [fromBody, fromLaw].filter(Boolean).join(" · ");
   return text.length > 180 ? text.slice(0, 180) + "…" : text;
 }

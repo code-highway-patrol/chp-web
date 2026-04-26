@@ -1,12 +1,25 @@
 import { useEffect, useState, type FormEvent } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useAuth, authedFetch } from "../auth/useAuth";
+import { normalizeLawJsonInput } from "../../law-json-normalize";
+
+const LAW_JSON_PLACEHOLDER = `{
+  "name": "my-law",
+  "intent": "One line describing what this law enforces",
+  "severity": "error",
+  "failures": 0,
+  "tightening_level": 0,
+  "hooks": ["pre-tool"],
+  "enabled": true,
+  "checks": []
+}`;
 
 export function NewStatuePage() {
   const { user, loading } = useAuth();
   const navigate = useNavigate();
   const [title, setTitle] = useState("");
   const [body, setBody] = useState("");
+  const [lawJson, setLawJson] = useState("");
   const [tags, setTags] = useState("");
   const [submitting, setSubmitting] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -21,6 +34,13 @@ export function NewStatuePage() {
     setSubmitting(true);
     setError(null);
 
+    const law = normalizeLawJsonInput(lawJson);
+    if (!law.ok) {
+      setError(law.error);
+      setSubmitting(false);
+      return;
+    }
+
     const tagList = tags
       .split(",")
       .map((t) => t.trim().toLowerCase())
@@ -31,6 +51,7 @@ export function NewStatuePage() {
       body: JSON.stringify({
         title,
         body,
+        lawJson: law.json,
         tags: tagList,
         authorName: user?.user_metadata?.user_name ?? user?.email?.split("@")[0],
       }),
@@ -63,8 +84,11 @@ export function NewStatuePage() {
         </Link>
         <h1 className="detail-title">Publish a statue</h1>
         <p className="market-sub" style={{ maxWidth: 640 }}>
-          Statues are .chprc rule packs. Plain English bullets work best — CHP
-          will enforce them on every agent turn for whoever installs your pack.
+          A full CHP law folder has <code>guidance.md</code>,{" "}
+          <code>law.json</code>, and <code>verify.sh</code>. Here you must paste
+          both the guidance (markdown) and the law definition JSON. On disk
+          these live under <code>docs/chp/laws/&lt;name&gt;/</code> — not in{" "}
+          <code>.chprc</code>.
         </p>
         <form onSubmit={submit} className="new-statue-form">
           <label className="new-field">
@@ -88,13 +112,24 @@ export function NewStatuePage() {
             />
           </label>
           <label className="new-field">
-            <span>.chprc body</span>
+            <span>guidance.md (markdown)</span>
             <textarea
               value={body}
               onChange={(e) => setBody(e.target.value)}
               required
+              rows={12}
+              placeholder={"Law: my-law\nSeverity: error\n\n- rule one\n- rule two"}
+            />
+          </label>
+          <label className="new-field">
+            <span>law.json</span>
+            <textarea
+              value={lawJson}
+              onChange={(e) => setLawJson(e.target.value)}
+              required
               rows={14}
-              placeholder={"# my-rules\n- rule one\n- rule two"}
+              placeholder={LAW_JSON_PLACEHOLDER}
+              spellCheck={false}
             />
           </label>
           {error && <div className="market-error">{error}</div>}

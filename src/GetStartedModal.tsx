@@ -88,13 +88,21 @@ export function GetStartedModal() {
               <div>
                 <div className="modal-step-title">Tell your agent the rules</div>
                 <div className="modal-step-body">
-                  Drop a <code className="modal-code">.chprc</code> file at
-                  your repo root. Plain English, plain rules.
+                  Custom laws live under{" "}
+                  <code className="modal-code">docs/chp/laws/</code> — not in{" "}
+                  <code className="modal-code">.chprc</code>. Each law is its own
+                  folder (named after the law) with three files CHP reads together.
                 </div>
-                <pre className="modal-codeblock">{`# .chprc
-- no any in TypeScript, ever
-- every async fn must have a timeout
-- match the existing test style in __tests__/`}</pre>
+                <pre className="modal-codeblock">{`docs/chp/laws/
+  no-any-typescript/
+    guidance.md   # rules in plain language
+    law.json      # severity, hooks, checks
+    verify.sh     # runs the atomic check runner`}</pre>
+                <div className="modal-step-body" style={{ marginTop: 10 }}>
+                  The marketplace publish flow asks for the same pair on disk:{" "}
+                  <code className="modal-code">guidance.md</code> content plus{" "}
+                  <code className="modal-code">law.json</code> (valid JSON object).
+                </div>
               </div>
             </li>
             <li>

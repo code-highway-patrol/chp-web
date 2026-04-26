@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { supabase } from "./supabase";
+import { supabase, isSupabaseConfigured } from "./supabase";
 import { useAuth } from "./useAuth";
 import { GithubMark } from "../GithubMark";
 
@@ -37,14 +37,22 @@ export function SignInPage() {
           Sign in to publish<br />and star statues.
         </h1>
         <p className="auth-sub">
-          Statues are community rule packs. You need an account to publish
-          your own or star the ones you depend on.
+          Statues bundle <code>guidance.md</code> and <code>law.json</code> for
+          the marketplace. You need an account to publish your own or star the
+          ones you depend on.
         </p>
+        {!isSupabaseConfigured && (
+          <p className="auth-error" role="status">
+            Set <code>VITE_SUPABASE_URL</code> and{" "}
+            <code>VITE_SUPABASE_PUBLISHABLE_KEY</code> in <code>.env</code> to
+            enable sign-in.
+          </p>
+        )}
         <div className="auth-providers">
           <button
             className="auth-btn"
             onClick={() => signIn("google")}
-            disabled={busy !== null}
+            disabled={busy !== null || !isSupabaseConfigured}
           >
             <GoogleMark />
             {busy === "google" ? "Redirecting…" : "Continue with Google"}
@@ -52,7 +60,7 @@ export function SignInPage() {
           <button
             className="auth-btn"
             onClick={() => signIn("github")}
-            disabled={busy !== null}
+            disabled={busy !== null || !isSupabaseConfigured}
           >
             <GithubMark size={18} />
             {busy === "github" ? "Redirecting…" : "Continue with GitHub"}

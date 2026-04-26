@@ -3,6 +3,7 @@ import { getDb, STATUES } from "../_lib/mongo.js";
 import { embed } from "../_lib/embed.js";
 import { requireUser } from "../_lib/auth.js";
 import { slugify } from "../_lib/slug.js";
+import { normalizeLawJsonInput } from "../_lib/law-json.js";
 
 export default async function handler(req: VercelRequest, res: VercelResponse) {
   const db = await getDb();
@@ -26,10 +27,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const user = await requireUser(req.headers.authorization);
     if (!user) return res.status(401).json({ error: "unauthorized" });
 
-    const { title, body, tags, authorName } = req.body ?? {};
+    const { title, body, lawJson, tags, authorName } = req.body ?? {};
     if (typeof title !== "string" || typeof body !== "string") {
       return res.status(400).json({ error: "title and body required" });
     }
+
+    const law = normalizeLawJsonInput(lawJson);
+    if (!law.ok) return res.status(400).json({ error: law.error });
 
     const slug = slugify(title);
     if (!slug) return res.status(400).json({ error: "title slugged to empty" });
@@ -37,12 +41,13 @@ export default async function handler(req: VercelRequest, res: VercelResponse) {
     const existing = await col.findOne({ slug });
     if (existing) return res.status(409).json({ error: "slug already exists" });
 
-    const embedding = await embed(`${title}\n\n${body}`);
+    const embedding = await embed(`${title}\n\n${body}\n\n${law.json}`);
 
     const doc = {
       slug,
       title,
       body,
+      lawJson: law.json,
       tags: Array.isArray(tags) ? tags.slice(0, 12).map(String) : [],
       authorId: user.id,
       authorName: typeof authorName === "string" ? authorName : user.email ?? "anonymous",

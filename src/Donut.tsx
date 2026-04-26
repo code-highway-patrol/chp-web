@@ -4,14 +4,18 @@ import {
   walkLineRanges,
   materializeLineRange,
 } from "@chenglou/pretext";
+import dispatcherSrc from "./donut-source/dispatcher.sh?raw";
+import checkRunnerSrc from "./donut-source/check-runner.sh?raw";
+import commonSrc from "./donut-source/common.sh?raw";
 
 // 3D spinning donut, riffing on Andy Sloane's classic donut.c. A torus is
 // sampled in (theta, phi), pitch/yaw rotated, projected to the grid, then
 // rasterized through a brightness-gated character pick. The visible (lit)
-// surface is textured with real bash from chp/core/dispatcher.sh so the
-// donut spins with CHP source code wrapped onto its skin. Pretext handles
-// font-width sanity (filtering zero-width chars) and per-row layout
-// normalization, matching the rest of the site's ASCII components.
+// surface is textured with the real bash that ships in chp/core (the same
+// dispatcher.sh, check-runner.sh, and common.sh that route every CHP hook),
+// vendored as ?raw so the donut wears actual production source on its skin.
+// Pretext handles font-width sanity (filtering zero-width chars) and per-row
+// layout normalization, matching the rest of the site's ASCII components.
 
 const FONT = '13px "Geist Mono", ui-monospace, Menlo, monospace';
 
@@ -27,8 +31,8 @@ const ASPECT = 14 / 7.5;
 const THETA_STEP = 0.1;
 const PHI_STEP = 0.025;
 
-const SPIN_A_RATE = 0.55;
-const SPIN_B_RATE = 0.95;
+const SPIN_A_RATE = 0.22;
+const SPIN_B_RATE = 0.38;
 
 // Hover ejects chars off the donut surface like sparks. Newly spawned chars
 // inherit their color from the cell they came from and arc outward under
@@ -42,36 +46,15 @@ const EJECT_LIFETIME = 0.55;
 const EJECT_GRAVITY = 12;
 const EJECT_DRAG = 0.7;
 
-// Real bash, lifted from chp/core/dispatcher.sh.
-const SOURCE_RAW = [
-  '#!/usr/bin/env bash',
-  'SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"',
-  'source "$SCRIPT_DIR/common.sh"',
-  'source "$SCRIPT_DIR/hook-registry.sh"',
-  'source "$SCRIPT_DIR/verifier.sh"',
-  'source "$SCRIPT_DIR/check-runner.sh"',
-  'source "$SCRIPT_DIR/law-mutate.sh"',
-  'get_hook_context() {',
-  '  local hook_type="$1"',
-  '  case "$hook_type" in',
-  '    pre-commit) echo "git diff --cached --name-only" ;;',
-  '    pre-push)   echo "git diff --name-only HEAD @{u}" ;;',
-  '    commit-msg) echo ".git/COMMIT_EDITMSG" ;;',
-  '    pre-tool)   echo "tool_context" ;;',
-  '  esac',
-  '}',
-  '_record_check_failures() {',
-  '  local law_name="$1" stdout="$2"',
-  '  while IFS= read -r line; do',
-  '    check_id=$(echo "$line" | jq -r ".check_id")',
-  '    status=$(echo "$line" | jq -r ".status")',
-  '    if [[ "$status" == "FAIL" ]]; then',
-  '      record_failure "$law_name" "$check_id"',
-  '    fi',
-  '  done <<< "$stdout"',
-  '}',
-]
-  .join(" ")
+// Real bash from chp/core, vendored under ./donut-source/ and imported at
+// build time. Strip shebangs/comments so the surface is textured with code
+// (function bodies, conditionals, jq pipelines) rather than English prose,
+// then collapse all whitespace into single spaces, since the donut maps each
+// (theta, phi) cell to one char of this string, so multi-line indentation
+// would just waste cells on invisible characters.
+const SOURCE_RAW = [dispatcherSrc, checkRunnerSrc, commonSrc]
+  .join("\n")
+  .replace(/^\s*#.*$/gm, "")
   .replace(/\s+/g, " ")
   .trim();
 
@@ -410,7 +393,18 @@ export function Donut() {
       // Step 1: spawn new ejected chars by stealing from cells under the
       // cursor. Picking *after* the donut raster means we always grab the
       // freshest visible char from each cell, including sprinkles.
+      // Velocity points outward from the donut's center through the cursor
+      // so sparks fly off the donut's rim away from the camera plane,
+      // instead of radiating around the cursor and arcing back across the
+      // far side of the surface.
       if (st.hoverActive) {
+        const ox = mx - COLS / 2;
+        const oy = my - ROWS / 2;
+        const od = Math.sqrt(ox * ox + oy * oy) || 1;
+        const outX = ox / od;
+        const outY = oy / od;
+        const tanX = -outY;
+        const tanY = outX;
         for (let i = 0; i < EJECT_PER_FRAME; i++) {
           const ang = Math.random() * Math.PI * 2;
           const r = Math.sqrt(Math.random()) * EJECT_RADIUS;
@@ -423,16 +417,12 @@ export function Donut() {
           const ch = charBuf[idx];
           if (!ch || ch === " " || ch === "." || ch === ",") continue;
           const klass = klassBuf[idx];
-          const dx = sx - mx;
-          const dy = sy - my;
-          const d = Math.sqrt(dx * dx + dy * dy + 0.01);
           const speed =
             EJECT_SPEED_MIN +
             Math.random() * (EJECT_SPEED_MAX - EJECT_SPEED_MIN);
-          const vx =
-            (dx / d) * speed + (Math.random() - 0.5) * EJECT_TANGENT;
-          const vy =
-            (dy / d) * speed + (Math.random() - 0.5) * EJECT_TANGENT;
+          const tan = (Math.random() - 0.5) * EJECT_TANGENT;
+          const vx = outX * speed + tanX * tan;
+          const vy = outY * speed + tanY * tan;
           st.ejected.push({ x: sx, y: sy, vx, vy, ch, klass, life: 1 });
         }
       }

@@ -1,0 +1,254 @@
+{
+  "a92b102bc2bc31609fd37c95ab3764a0a50397d7f934ed86e7b1a06f05a71896": {
+    "slug": "programming-best-practices",
+    "sha256": "e0b39f059a5d1bc8da9ab4d6eece6b00eb7cfb8d95ca862327517884ba45fc1f",
+    "contentHash": "a92b102bc2bc31609fd37c95ab3764a0a50397d7f934ed86e7b1a06f05a71896",
+    "scannedAt": "2026-04-26T06:08:41.926Z",
+    "stats": {
+      "malicious": 0,
+      "suspicious": 0,
+      "harmless": 0,
+      "undetected": 61,
+      "timeout": 0
+    },
+    "permalink": "https://www.virustotal.com/gui/file/e0b39f059a5d1bc8da9ab4d6eece6b00eb7cfb8d95ca862327517884ba45fc1f"
+  },
+  "70eb5e5c0cf272e9361a9e3ca9306481d835cfc4d8d16084ebb5d74c79ee9b6c": {
+    "slug": "no-console-in-prod",
+    "sha256": "96bad89aebb7f91731e7b0e7ac1904edd42f6dfd119a6f5603075c0c557a4597",
+    "contentHash": "70eb5e5c0cf272e9361a9e3ca9306481d835cfc4d8d16084ebb5d74c79ee9b6c",
+    "scannedAt": "2026-04-26T06:08:43.605Z",
+    "stats": {
+      "malicious": 0,
+      "suspicious": 0,
+      "harmless": 0,
+      "undetected": 61,
+      "timeout": 0
+    },
+    "permalink": "https://www.virustotal.com/gui/file/96bad89aebb7f91731e7b0e7ac1904edd42f6dfd119a6f5603075c0c557a4597"
+  },
+  "8d7c88a1ffd2e79f14a7537be1a105a3ab78dc4e4d4f850d9279becd126adca8": {
+    "slug": "async-timeout-required",
+    "sha256": "31818e63dbda76b6b8243c0862afa145e315843f2d022bc1726ab0b3ff2fc750",
+    "contentHash": "8d7c88a1ffd2e79f14a7537be1a105a3ab78dc4e4d4f850d9279becd126adca8",
+    "scannedAt": "2026-04-26T06:08:45.758Z",
+    "stats": {
+      "malicious": 0,
+      "suspicious": 0,
+      "harmless": 0,
+      "undetected": 0,
+      "timeout": 0
+    },
+    "permalink": "https://www.virustotal.com/gui/file/31818e63dbda76b6b8243c0862afa145e315843f2d022bc1726ab0b3ff2fc750"
+  },
+  "5a3393583ca171ff11475577e43a236f260967c3355656e0c95ae95c5cab8e28": {
+    "slug": "match-test-style",
+    "sha256": "402d507885db19355e159d8a61485789913afceb70beb428198f64445a9fa1ce",
+    "contentHash": "5a3393583ca171ff11475577e43a236f260967c3355656e0c95ae95c5cab8e28",
+    "scannedAt": "2026-04-26T06:09:09.510Z",
+    "stats": {
+      "malicious": 0,
+      "suspicious": 0,
+      "harmless": 0,
+      "undetected": 61,
+      "timeout": 0
+    },
+    "permalink": "https://www.virustotal.com/gui/file/402d507885db19355e159d8a61485789913afceb70beb428198f64445a9fa1ce"
+  },
+  "72bc771141cd50efbb77f3e94c838b6059218b4b597dddf998b6c6b620de4394": {
+    "slug": "no-any-typescript",
+    "sha256": "611e07fe5eb53d946510e7c172198f33cc2b625d9cde37c9183e375ffacd8ef9",
+    "contentHash": "72bc771141cd50efbb77f3e94c838b6059218b4b597dddf998b6c6b620de4394",
+    "scannedAt": "2026-04-26T06:09:11.181Z",
+    "stats": {
+      "malicious": 0,
+      "suspicious": 0,
+      "harmless": 0,
+      "undetected": 0,
+      "timeout": 0
+    },
+    "permalink": "https://www.virustotal.com/gui/file/611e07fe5eb53d946510e7c172198f33cc2b625d9cde37c9183e375ffacd8ef9"
+  },
+  "255774d2f933ae04cf18101d600730dab243bc8691af846815b5c83de3e52672": {
+    "slug": "law-folder-layout",
+    "sha256": "a93e002553ec978ae1057ab7afd844cabc266af8b152e456aa62d2ccf23a8f74",
+    "contentHash": "255774d2f933ae04cf18101d600730dab243bc8691af846815b5c83de3e52672",
+    "scannedAt": "2026-04-26T06:10:22.573Z",
+    "stats": {
+      "malicious": 0,
+      "suspicious": 0,
+      "harmless": 0,
+      "undetected": 61,
+      "timeout": 0
+    },
+    "permalink": "https://www.virustotal.com/gui/file/a93e002553ec978ae1057ab7afd844cabc266af8b152e456aa62d2ccf23a8f74"
+  },
+  "459559512e9b7763e81b789653d41fee0447c6f7f1a73afb2c7268d2deec6bc3": {
+    "slug": "semantic-html-nav",
+    "sha256": "3b8ae8f891584f82d93c4d26742a1c73367082d21217a19cfbcb5478f2e6059b",
+    "contentHash": "459559512e9b7763e81b789653d41fee0447c6f7f1a73afb2c7268d2deec6bc3",
+    "scannedAt": "2026-04-26T06:10:24.225Z",
+    "stats": {
+      "malicious": 0,
+      "suspicious": 0,
+      "harmless": 0,
+      "undetected": 0,
+      "timeout": 0
+    },
+    "permalink": "https://www.virustotal.com/gui/file/3b8ae8f891584f82d93c4d26742a1c73367082d21217a19cfbcb5478f2e6059b"
+  },
+  "aa9eeb476f16c852f8d83b2776d41c3583bd96be3c3928d3ec76009605313043": {
+    "slug": "env-no-secrets",
+    "sha256": "76a07dc9374caf2e3fe5850f46be96caed44744a0809ec8126fbcd363c2c9b88",
+    "contentHash": "aa9eeb476f16c852f8d83b2776d41c3583bd96be3c3928d3ec76009605313043",
+    "scannedAt": "2026-04-26T06:11:10.787Z",
+    "stats": {
+      "malicious": 0,
+      "suspicious": 0,
+      "harmless": 0,
+      "undetected": 61,
+      "timeout": 0
+    },
+    "permalink": "https://www.virustotal.com/gui/file/76a07dc9374caf2e3fe5850f46be96caed44744a0809ec8126fbcd363c2c9b88"
+  },
+  "d66246c308017c1cfa6ac2086ffe46d971cf25a604db80f3945a3cb010b69842": {
+    "slug": "pr-small-diffs",
+    "sha256": "bc2178c7c057fd009fbb531f10c0d38a25b3702375c174c90020ac79b0564a58",
+    "contentHash": "d66246c308017c1cfa6ac2086ffe46d971cf25a604db80f3945a3cb010b69842",
+    "scannedAt": "2026-04-26T06:11:56.031Z",
+    "stats": {
+      "malicious": 0,
+      "suspicious": 0,
+      "harmless": 0,
+      "undetected": 61,
+      "timeout": 0
+    },
+    "permalink": "https://www.virustotal.com/gui/file/bc2178c7c057fd009fbb531f10c0d38a25b3702375c174c90020ac79b0564a58"
+  },
+  "1053bada21a00557c5bd49366af82bf47e81ea1280153a8c83ebbf05d35b9810": {
+    "slug": "responsive-touch-targets",
+    "sha256": "51b8901705c6d532e1195e7c4c60050ea2531af1bfa1289c9b22fb674138f6eb",
+    "contentHash": "1053bada21a00557c5bd49366af82bf47e81ea1280153a8c83ebbf05d35b9810",
+    "scannedAt": "2026-04-26T06:12:10.715Z",
+    "stats": {
+      "malicious": 0,
+      "suspicious": 0,
+      "harmless": 0,
+      "undetected": 0,
+      "timeout": 0
+    },
+    "permalink": "https://www.virustotal.com/gui/file/51b8901705c6d532e1195e7c4c60050ea2531af1bfa1289c9b22fb674138f6eb"
+  },
+  "6805543f404faf78c45676abdaba7c3b24b5b29a51ff7fe7bce958b5e419def1": {
+    "slug": "no-drive-by-refactors",
+    "sha256": "18d43ac6e9309a8a257115591e47941d133a3189d259a29fcd7d7b18f61db5e3",
+    "contentHash": "6805543f404faf78c45676abdaba7c3b24b5b29a51ff7fe7bce958b5e419def1",
+    "scannedAt": "2026-04-26T06:12:39.166Z",
+    "stats": {
+      "malicious": 0,
+      "suspicious": 0,
+      "harmless": 0,
+      "undetected": 61,
+      "timeout": 0
+    },
+    "permalink": "https://www.virustotal.com/gui/file/18d43ac6e9309a8a257115591e47941d133a3189d259a29fcd7d7b18f61db5e3"
+  },
+  "a914fb8ce9eeda9af1555a16c27f8c6f868be62aeffa2531a375c5d4f9750ae4": {
+    "slug": "prefer-fetch-over-axios",
+    "sha256": "4e4957f2bd86cc77c87f565e6d52c5e9bcdc1810b499c2ad7bb35c9d2ff3bd00",
+    "contentHash": "a914fb8ce9eeda9af1555a16c27f8c6f868be62aeffa2531a375c5d4f9750ae4",
+    "scannedAt": "2026-04-26T06:13:24.107Z",
+    "stats": {
+      "malicious": 0,
+      "suspicious": 0,
+      "harmless": 0,
+      "undetected": 61,
+      "timeout": 0
+    },
+    "permalink": "https://www.virustotal.com/gui/file/4e4957f2bd86cc77c87f565e6d52c5e9bcdc1810b499c2ad7bb35c9d2ff3bd00"
+  },
+  "262638c7ce1324f1ad3ba8b42fa9d06b4fc9198eba83261fc46c2e6f65bfb59f": {
+    "slug": "images-lazy-and-sized",
+    "sha256": "41f3c14c287cc01f2ef85b33da26945708e84a35ca286dd74d718e8dda4e90ed",
+    "contentHash": "262638c7ce1324f1ad3ba8b42fa9d06b4fc9198eba83261fc46c2e6f65bfb59f",
+    "scannedAt": "2026-04-26T06:13:52.586Z",
+    "stats": {
+      "malicious": 0,
+      "suspicious": 0,
+      "harmless": 0,
+      "undetected": 61,
+      "timeout": 0
+    },
+    "permalink": "https://www.virustotal.com/gui/file/41f3c14c287cc01f2ef85b33da26945708e84a35ca286dd74d718e8dda4e90ed"
+  },
+  "2cbc329271187493fdad155c4042e865ef23798335fd77f74740a1e86dcce232": {
+    "slug": "error-states-user-facing",
+    "sha256": "b873261e37ade6f6ae11f0a81d535f66c464ebd0ab34ad96335f2a54c229893f",
+    "contentHash": "2cbc329271187493fdad155c4042e865ef23798335fd77f74740a1e86dcce232",
+    "scannedAt": "2026-04-26T06:15:35.803Z",
+    "stats": {
+      "malicious": 0,
+      "suspicious": 0,
+      "harmless": 0,
+      "undetected": 55,
+      "timeout": 6
+    },
+    "permalink": "https://www.virustotal.com/gui/file/b873261e37ade6f6ae11f0a81d535f66c464ebd0ab34ad96335f2a54c229893f"
+  },
+  "e9f8acb4c0606e9c6fea43cf258d4a6e20e8005fad4cde731210072a7ff925eb": {
+    "slug": "sql-parameterized-only",
+    "sha256": "98105ee9e30b6fc31f65ba0e834b91196c5370a14e2a395a7399448cc888661d",
+    "contentHash": "e9f8acb4c0606e9c6fea43cf258d4a6e20e8005fad4cde731210072a7ff925eb",
+    "scannedAt": "2026-04-26T06:16:15.234Z",
+    "stats": {
+      "malicious": 0,
+      "suspicious": 0,
+      "harmless": 0,
+      "undetected": 61,
+      "timeout": 0
+    },
+    "permalink": "https://www.virustotal.com/gui/file/98105ee9e30b6fc31f65ba0e834b91196c5370a14e2a395a7399448cc888661d"
+  },
+  "55342717d06b0ccf663954d0e6a32c03cb4c5f6fb48112a957f58f86492a4307": {
+    "slug": "comments-why-not-what",
+    "sha256": "da09e64f18e408fe025646b9d44b4864330b66806ef001fcc08a7f9f3d2ab641",
+    "contentHash": "55342717d06b0ccf663954d0e6a32c03cb4c5f6fb48112a957f58f86492a4307",
+    "scannedAt": "2026-04-26T06:16:49.234Z",
+    "stats": {
+      "malicious": 0,
+      "suspicious": 0,
+      "harmless": 0,
+      "undetected": 61,
+      "timeout": 0
+    },
+    "permalink": "https://www.virustotal.com/gui/file/da09e64f18e408fe025646b9d44b4864330b66806ef001fcc08a7f9f3d2ab641"
+  },
+  "d7f8e2f0a1d7550f44b5fb599bae060655df7a842586aa224c89a90e7c2a0ee6": {
+    "slug": "rate-limit-sensitive-routes",
+    "sha256": "35f557830032e103394db614d3c2df2fa2fa02a53d030dd7c6df35cb49ed44d7",
+    "contentHash": "d7f8e2f0a1d7550f44b5fb599bae060655df7a842586aa224c89a90e7c2a0ee6",
+    "scannedAt": "2026-04-26T06:17:12.888Z",
+    "stats": {
+      "malicious": 0,
+      "suspicious": 0,
+      "harmless": 0,
+      "undetected": 61,
+      "timeout": 0
+    },
+    "permalink": "https://www.virustotal.com/gui/file/35f557830032e103394db614d3c2df2fa2fa02a53d030dd7c6df35cb49ed44d7"
+  },
+  "198870464537d3220416ff4cd44338e2c58cacaf8edcc0131bfe20c00fefe388": {
+    "slug": "dark-mode-respect-pref",
+    "sha256": "e69a01e1d375480f7f2fea09ab401eaa75b718b4f9a1facc0441a1c500d06d8d",
+    "contentHash": "198870464537d3220416ff4cd44338e2c58cacaf8edcc0131bfe20c00fefe388",
+    "scannedAt": "2026-04-26T06:17:42.332Z",
+    "stats": {
+      "malicious": 0,
+      "suspicious": 0,
+      "harmless": 0,
+      "undetected": 61,
+      "timeout": 0
+    },
+    "permalink": "https://www.virustotal.com/gui/file/e69a01e1d375480f7f2fea09ab401eaa75b718b4f9a1facc0441a1c500d06d8d"
+  }
+}

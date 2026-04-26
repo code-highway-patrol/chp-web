@@ -49,7 +49,7 @@ const FEATS: Feat[] = [
   {
     tag: "03 editor-native",
     title: "Hooks into your agent",
-    body: "One CLI. Drops in as a pre‑tool hook in Cursor, Claude Code, and Codex.",
+    body: "One CLI. Drops in as a pre‑tool hook in Claude Code, Codex, and Windsurf.",
     icon: (
       <svg {...ICON} aria-hidden>
         <path d="M9 4v4M15 4v4" />

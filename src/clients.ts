@@ -3,9 +3,7 @@ import { cldFetch } from "./cloudinary/config";
 export type ClientId =
   | "claude"
   | "codex"
-  | "cursor"
-  | "windsurf"
-  | "antigravity";
+  | "windsurf";
 
 export type Client = {
   id: ClientId;
@@ -34,22 +32,10 @@ export const CLIENTS: Client[] = [
     after: ["codex", "plugin install", "chp@chp-labs"],
   },
   {
-    id: "cursor",
-    label: "Cursor",
-    icon: favicon("cursor.com"),
-    cmd: ["cursor", "--install-extension", "chp-labs.chp"],
-  },
-  {
     id: "windsurf",
     label: "Windsurf",
     icon: favicon("windsurf.com"),
     cmd: ["windsurf", "--install-extension", "chp-labs.chp"],
-  },
-  {
-    id: "antigravity",
-    label: "Antigravity",
-    icon: favicon("antigravity.google"),
-    cmd: ["antigravity", "plugin install", "chp-labs/chp"],
   },
 ];
 

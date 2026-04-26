@@ -7,7 +7,6 @@ const AI_LOGOS = [
   { name: "Claude", url: cldFetch("https://www.google.com/s2/favicons?domain=claude.ai&sz=128") },
   { name: "ChatGPT", url: cldFetch("https://www.google.com/s2/favicons?domain=openai.com&sz=128") },
   { name: "Gemini", url: cldFetch("https://www.google.com/s2/favicons?domain=gemini.google.com&sz=128") },
-  { name: "Cursor", url: cldFetch("https://www.google.com/s2/favicons?domain=cursor.com&sz=128") },
   { name: "Grok", url: cldFetch("https://www.google.com/s2/favicons?domain=x.ai&sz=128") },
 ];
 

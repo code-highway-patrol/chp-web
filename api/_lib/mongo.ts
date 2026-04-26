@@ -41,3 +41,16 @@ export async function getDb(): Promise<Db> {
 }
 
 export const STATUES = "statues";
+export const CLI_AUTH_CODES = "cli_auth_codes";
+
+let cliAuthIndexEnsured = false;
+
+export async function ensureCliAuthIndexes(db: Db): Promise<void> {
+  if (cliAuthIndexEnsured) return;
+  await db.collection(CLI_AUTH_CODES).createIndex(
+    { expiresAt: 1 },
+    { expireAfterSeconds: 0 },
+  );
+  await db.collection(CLI_AUTH_CODES).createIndex({ code: 1 }, { unique: true });
+  cliAuthIndexEnsured = true;
+}

@@ -6,6 +6,8 @@
     { "source": "/marketplace", "destination": "/index.html" },
     { "source": "/marketplace/:path*", "destination": "/index.html" },
     { "source": "/auth", "destination": "/index.html" },
-    { "source": "/auth/:path*", "destination": "/index.html" }
+    { "source": "/auth/:path*", "destination": "/index.html" },
+    { "source": "/cli-auth", "destination": "/index.html" },
+    { "source": "/cli-auth/:path*", "destination": "/index.html" }
   ]
 }

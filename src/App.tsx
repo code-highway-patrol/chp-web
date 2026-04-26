@@ -8,6 +8,7 @@ import { StatueDetailPage } from "./marketplace/StatueDetailPage";
 import { NewStatuePage } from "./marketplace/NewStatuePage";
 import { SignInPage } from "./auth/SignInPage";
 import { AuthCallbackPage } from "./auth/AuthCallbackPage";
+import { CliAuthPage } from "./auth/CliAuthPage";
 
 export default function App() {
   return (
@@ -20,6 +21,7 @@ export default function App() {
         <Route path="/marketplace/:slug" element={<StatueDetailPage />} />
         <Route path="/auth" element={<SignInPage />} />
         <Route path="/auth/callback" element={<AuthCallbackPage />} />
+        <Route path="/cli-auth" element={<CliAuthPage />} />
       </Routes>
       <Footer />
       <GetStartedModal />

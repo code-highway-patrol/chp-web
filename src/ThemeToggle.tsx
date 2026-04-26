@@ -3,9 +3,9 @@ import { useEffect, useState } from "react";
 type Theme = "light" | "dark";
 
 function readStored(): Theme {
-  if (typeof document === "undefined") return "light";
+  if (typeof document === "undefined") return "dark";
   const stored = localStorage.getItem("chp-theme");
-  return stored === "dark" ? "dark" : "light";
+  return stored === "light" ? "light" : "dark";
 }
 
 export function ThemeToggle() {

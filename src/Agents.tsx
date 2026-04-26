@@ -30,7 +30,7 @@ const AGENTS: Agent[] = [
     badge: "T",
     name: "Technician",
     role: "applies the fix",
-    body: "When a law has auto-fix on, the Technician generates the patch from the same guidance the Detective wrote. Small, scoped diffs — no human turn required.",
+    body: "When a law has auto-fix on, the Technician generates the patch from the same guidance the Detective wrote. Small, scoped diffs, no human turn required.",
   },
 ];
 

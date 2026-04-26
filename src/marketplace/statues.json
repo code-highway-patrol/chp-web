@@ -14,6 +14,7 @@
     "authorName": "dereknguyen269",
     "createdAt": "2026-04-26T05:11:12.135Z",
     "stars": 0,
+    "readme": "# Programming Best Practices\n\nA curated set of concrete, check-able rules for JavaScript / TypeScript codebases. Each law is a folder containing the three files CHP keeps on disk:\n\n- `law.json` — what the law is, which hooks it runs on, the severity\n- `verify.sh` — the actual check (exit 0 = pass, 1 = fail)\n- `guidance.md` — the human-readable why + how to comply\n\n## What's in here\n\n| Law | What it blocks |\n| --- | --- |\n| `js-no-var` | `var` declarations — use `let` / `const` |\n| `no-debugger` | Stray `debugger` statements |\n| `no-double-equals` | Loose `==` / `!=` — use `===` / `!==` |\n| `no-document-write` | `document.write` calls |\n| `no-eval-call` | `eval()` calls |\n| `ts-no-any` | `: any` type annotations |\n\n## Install\n\nFrom inside your repo, with CHP already installed:\n\n```\nchp install programming-best-practices\n```\n\nThis README and any other root-level docs are **not** copied — only the `<law>/{law.json,verify.sh,guidance.md}` triples are written into `docs/chp/laws/`.\n\n## Credit\n\nDerived from [dereknguyen269/programing-best-practices](https://github.com/dereknguyen269/programing-best-practices).\n",
     "files": [
       {
         "path": "js-no-var/guidance.md",

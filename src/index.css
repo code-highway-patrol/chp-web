@@ -2439,9 +2439,13 @@ body.dark .theme-toggle .moon { display: none; }
 
 /* ---- Detail head extras (law-pack) ---- */
 .detail-folder {
-  font-size: 32px;
-  margin-right: 8px;
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 32px; height: 32px;
+  margin-right: 10px;
+  color: oklch(0.62 0.13 75);
+  vertical-align: middle;
 }
+.detail-folder svg { width: 24px; height: 24px; }
 .detail-description {
   font-size: 16px;
   color: var(--ink-2);
@@ -2451,7 +2455,13 @@ body.dark .theme-toggle .moon { display: none; }
 }
 
 /* ---- Statue card law-pack badge ---- */
-.statue-card-folder { margin-right: 6px; }
+.statue-card-folder {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 16px; height: 16px;
+  margin-right: 6px;
+  color: oklch(0.62 0.13 75);
+  vertical-align: -2px;
+}
 .statue-card-count {
   font-family: var(--mono);
   font-size: 11px;
@@ -2466,13 +2476,16 @@ body.dark .theme-toggle .moon { display: none; }
   border-radius: 10px;
   background: var(--bg);
   margin: 0 0 20px;
-  overflow: hidden;
+  position: relative;
+  z-index: 60;
 }
 .statue-install-head {
   display: flex; align-items: center; justify-content: space-between;
   gap: 12px;
   padding: 10px 14px;
   border-bottom: 1px solid var(--line);
+  border-top-left-radius: 10px;
+  border-top-right-radius: 10px;
 }
 .statue-install-label {
   font-family: var(--mono);
@@ -2487,6 +2500,8 @@ body.dark .theme-toggle .moon { display: none; }
   background: var(--bg-deep);
   font-family: var(--mono);
   font-size: 13px;
+  border-bottom-left-radius: 10px;
+  border-bottom-right-radius: 10px;
 }
 .statue-install-prompt {
   color: var(--ink-3);
@@ -2541,8 +2556,21 @@ body.dark .theme-toggle .moon { display: none; }
 .tree-folder:hover, .tree-file:hover { background: var(--bg); color: var(--ink); }
 .tree-file.active { background: var(--accent); color: oklch(0.18 0.01 80); }
 body.dark .tree-file.active { color: oklch(0.12 0.01 80); }
-.tree-chev { width: 10px; color: var(--ink-3); font-size: 10px; }
-.tree-icon { width: 14px; text-align: center; opacity: 0.85; }
+.tree-chev {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 14px; height: 14px;
+  color: var(--ink-3);
+  flex: none;
+}
+.tree-icon {
+  display: inline-flex; align-items: center; justify-content: center;
+  width: 14px; height: 14px;
+  color: var(--ink-2); opacity: 0.85;
+  flex: none;
+}
+.tree-folder .tree-icon { color: oklch(0.62 0.13 75); opacity: 1; }
+.tree-file .tree-icon { color: var(--ink-3); }
+.tree-file.active .tree-icon { color: inherit; opacity: 1; }
 .tree-name {
   flex: 1; min-width: 0;
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
@@ -2563,6 +2591,17 @@ body.dark .tree-file.active { color: oklch(0.12 0.01 80); }
   color: var(--ink-2);
   overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
   min-width: 0; flex: 1;
+}
+.lawpack-info-badge {
+  font-family: var(--mono);
+  font-size: 10px;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--ink-3);
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  padding: 2px 8px;
+  flex: none;
 }
 .file-body {
   margin: 0;

@@ -20,12 +20,28 @@ function formatLawJson(raw: string | object): string {
   }
 }
 
+// Files whose path is purely informational and not part of the install set.
+// `chp install` should skip these on disk; the explorer still shows them.
+function isInfoFile(path: string): boolean {
+  const base = path.split("/").pop() ?? path;
+  return base.toLowerCase() === "readme.md";
+}
+
 // Legacy statues store a single law as body + lawJson. To render them in the
 // same file-tree explorer as law packs, synthesize the on-disk shape:
 //   <slug>/guidance.md, <slug>/law.json
 function statueFiles(statue: Statue): StatueFile[] {
-  if (Array.isArray(statue.files) && statue.files.length > 0) return statue.files;
   const out: StatueFile[] = [];
+  if (statue.readme && statue.readme.trim()) {
+    out.push({
+      path: "README.md",
+      content: statue.readme,
+      size: statue.readme.length,
+    });
+  }
+  if (Array.isArray(statue.files) && statue.files.length > 0) {
+    return [...out, ...statue.files];
+  }
   if (statue.body && statue.body.trim()) {
     out.push({
       path: `${statue.slug}/guidance.md`,
@@ -90,7 +106,9 @@ export function StatueDetailPage() {
         </Link>
         <div className="detail-head">
           <h1 className="detail-title">
-            <span className="detail-folder">📁</span>
+            <span className="detail-folder">
+              <FolderIcon />
+            </span>
             {statue.title}
           </h1>
           <div className="detail-meta">
@@ -140,6 +158,7 @@ export function StatueDetailPage() {
 function ExplorerView({ slug, files }: { slug: string; files: StatueFile[] }) {
   const defaultPath = useMemo(() => {
     return (
+      files.find((f) => f.path === "README.md")?.path ??
       files.find((f) => f.path.endsWith("/guidance.md"))?.path ??
       files.find((f) => f.path.endsWith("/law.json"))?.path ??
       files[0]?.path ??
@@ -176,6 +195,11 @@ function ExplorerView({ slug, files }: { slug: string; files: StatueFile[] }) {
         <section className="lawpack-viewer">
           <div className="lawpack-viewer-head">
             <span className="lawpack-viewer-path">{activePath || "—"}</span>
+            {active && isInfoFile(active.path) && (
+              <span className="lawpack-info-badge" title="Not copied to your repo by chp install">
+                info only
+              </span>
+            )}
             <button
               type="button"
               className="detail-copy"
@@ -312,7 +336,9 @@ function TreeItem({
           className={"tree-file" + (active ? " active" : "")}
           onClick={() => onSelect(node.path)}
         >
-          <span className="tree-icon">{fileIcon(node.name)}</span>
+          <span className="tree-icon">
+            <FileIcon name={node.name} />
+          </span>
           <span className="tree-name">{node.name}</span>
         </button>
       </li>
@@ -325,8 +351,12 @@ function TreeItem({
         className={"tree-folder" + (open ? " open" : "")}
         onClick={() => setOpen((o) => !o)}
       >
-        <span className="tree-chev">{open ? "▾" : "▸"}</span>
-        <span className="tree-icon">📁</span>
+        <span className="tree-chev">
+          <ChevronIcon open={open} />
+        </span>
+        <span className="tree-icon">
+          <FolderIcon />
+        </span>
         <span className="tree-name">{node.name}</span>
       </button>
       {open && (
@@ -341,11 +371,76 @@ function TreeItem({
   );
 }
 
-function fileIcon(name: string): string {
-  if (name === "law.json") return "⚖";
-  if (name === "verify.sh") return "✓";
-  if (name === "guidance.md") return "📄";
-  return "·";
+const ICON_PROPS = {
+  width: 14,
+  height: 14,
+  viewBox: "0 0 16 16",
+  fill: "none",
+  stroke: "currentColor",
+  strokeWidth: 1.4,
+  strokeLinecap: "round",
+  strokeLinejoin: "round",
+} as const;
+
+function FolderIcon() {
+  return (
+    <svg {...ICON_PROPS} aria-hidden>
+      <path d="M2 4.5a1 1 0 0 1 1-1h3.6a1 1 0 0 1 .7.3L8.8 5h4.2a1 1 0 0 1 1 1v5.5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z" />
+    </svg>
+  );
+}
+
+function FileIcon({ name }: { name: string }) {
+  if (name.endsWith(".json")) {
+    return (
+      <svg {...ICON_PROPS} aria-hidden>
+        <path d="M9.5 2H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5.5z" />
+        <path d="M9.5 2v3.5H13" />
+        <path d="M6 10.5c-.6 0-1 .3-1 1s.4 1 1 1h.3" />
+        <path d="M10 10.5c.6 0 1 .3 1 1s-.4 1-1 1h-.3" />
+        <path d="M8 10.5v2" />
+      </svg>
+    );
+  }
+  if (name.endsWith(".sh")) {
+    return (
+      <svg {...ICON_PROPS} aria-hidden>
+        <rect x="2" y="3.5" width="12" height="9" rx="1.2" />
+        <path d="M4.5 7l1.5 1.3L4.5 9.5" />
+        <path d="M7.5 9.8h2.7" />
+      </svg>
+    );
+  }
+  if (name.endsWith(".md")) {
+    return (
+      <svg {...ICON_PROPS} aria-hidden>
+        <rect x="2" y="3.5" width="12" height="9" rx="1.2" />
+        <path d="M4.5 10V6l1.5 2 1.5-2v4" />
+        <path d="M10 6.5v3.5M10 10l1-1M10 10l-1-1" />
+      </svg>
+    );
+  }
+  return (
+    <svg {...ICON_PROPS} aria-hidden>
+      <path d="M9.5 2H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h8a1 1 0 0 0 1-1V5.5z" />
+      <path d="M9.5 2v3.5H13" />
+    </svg>
+  );
+}
+
+function ChevronIcon({ open }: { open: boolean }) {
+  return (
+    <svg
+      {...ICON_PROPS}
+      style={{
+        transform: open ? "rotate(90deg)" : "none",
+        transition: "transform 140ms",
+      }}
+      aria-hidden
+    >
+      <path d="M6 4l4 4-4 4" />
+    </svg>
+  );
 }
 
 function FileBody({ file }: { file: StatueFile }) {

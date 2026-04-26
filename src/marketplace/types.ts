@@ -21,6 +21,7 @@ export type LawSummary = {
   hooks: string[];
   severity: "error" | "warn" | "info";
   intent?: string;
+  description?: string;
 };
 
 export type Statue = {
@@ -35,6 +36,10 @@ export type Statue = {
   stars: number;
   score?: number;
   hasStarred?: boolean;
+
+  /** Markdown shown at the root of the file tree (e.g. README.md). Purely
+   *  informational — `chp install` skips it. */
+  readme?: string;
 
   // Legacy (single law per statue)
   body?: string;

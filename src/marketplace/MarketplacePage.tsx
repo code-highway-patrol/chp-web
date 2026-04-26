@@ -167,7 +167,22 @@ function StatueCard({ statue }: { statue: Statue }) {
     >
       <div className="statue-card-head">
         <div className="statue-card-title">
-          {isLawPack && <span className="statue-card-folder">📁</span>}
+          {isLawPack && (
+            <span className="statue-card-folder" aria-hidden>
+              <svg
+                width={14}
+                height={14}
+                viewBox="0 0 16 16"
+                fill="none"
+                stroke="currentColor"
+                strokeWidth={1.4}
+                strokeLinecap="round"
+                strokeLinejoin="round"
+              >
+                <path d="M2 4.5a1 1 0 0 1 1-1h3.6a1 1 0 0 1 .7.3L8.8 5h4.2a1 1 0 0 1 1 1v5.5a1 1 0 0 1-1 1H3a1 1 0 0 1-1-1z" />
+              </svg>
+            </span>
+          )}
           {statue.title}
         </div>
         <div className="statue-card-stars">★ {statue.stars}</div>

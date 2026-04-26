@@ -34,6 +34,7 @@ export function Nav() {
         <div className="nav-links">
           <NavLink to="/" end>About</NavLink>
           <NavLink to="/marketplace">Marketplace</NavLink>
+          {user && <NavLink to="/marketplace/new">Contribute</NavLink>}
         </div>
         <div className="nav-cta">
           <ThemeToggle />

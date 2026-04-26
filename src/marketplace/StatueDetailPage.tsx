@@ -3,6 +3,7 @@ import { Link, useParams } from "react-router-dom";
 import type { Statue, StatueFile } from "./types";
 import { getStatueBySlug } from "./statuesCatalog";
 import { isSlugStarred, toggleSlugStarred } from "./localStarPreferences";
+import { recordStar } from "./starsApi";
 import { ClientPicker } from "../ClientPicker";
 import type { ClientId } from "../clients";
 import { VirusTotalBadge } from "./VirusTotalBadge";
@@ -64,22 +65,49 @@ function statueFiles(statue: Statue): StatueFile[] {
 export function StatueDetailPage() {
   const { slug } = useParams();
   const [favTick, setFavTick] = useState(0);
+  const [row, setRow] = useState<Statue | null>(null);
+  const [status, setStatus] = useState<"loading" | "ready" | "missing" | "error">("loading");
+  const [errMsg, setErrMsg] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!slug) return;
+    let cancelled = false;
+    setStatus("loading");
+    getStatueBySlug(slug)
+      .then((found) => {
+        if (cancelled) return;
+        if (!found) {
+          setRow(null);
+          setStatus("missing");
+        } else {
+          setRow(found);
+          setStatus("ready");
+        }
+      })
+      .catch((err) => {
+        if (cancelled) return;
+        setErrMsg(err instanceof Error ? err.message : "failed to load");
+        setStatus("error");
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [slug]);
 
   const statue = useMemo((): Statue | null => {
-    if (!slug) return null;
-    const row = getStatueBySlug(slug);
-    if (!row) return null;
+    if (!slug || !row) return null;
     void favTick;
     return { ...row, hasStarred: isSlugStarred(slug) };
-  }, [slug, favTick]);
+  }, [slug, row, favTick]);
 
   const toggleStar = () => {
     if (!statue) return;
-    toggleSlugStarred(statue.slug);
+    const next = toggleSlugStarred(statue.slug);
     setFavTick((x) => x + 1);
+    void recordStar(statue.slug, next);
   };
 
-  if (!slug) {
+  if (!slug || status === "loading") {
     return (
       <main className="wrap detail-empty">
         <p>loading…</p>
@@ -87,11 +115,21 @@ export function StatueDetailPage() {
     );
   }
 
-  if (statue === null) {
+  if (status === "error") {
     return (
       <main className="wrap detail-empty">
-        <h1>{slug ? "not found" : "loading…"}</h1>
-        {slug ? <Link to="/marketplace">← back to marketplace</Link> : null}
+        <h1>couldn't load</h1>
+        <p className="market-sub">{errMsg ?? "network error"}</p>
+        <Link to="/marketplace">← back to marketplace</Link>
+      </main>
+    );
+  }
+
+  if (status === "missing" || !statue) {
+    return (
+      <main className="wrap detail-empty">
+        <h1>not found</h1>
+        <Link to="/marketplace">← back to marketplace</Link>
       </main>
     );
   }

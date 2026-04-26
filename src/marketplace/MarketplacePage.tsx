@@ -4,7 +4,8 @@ import type { Statue } from "./types";
 import { ClientPicker } from "../ClientPicker";
 import { InstallCmd } from "../InstallCmd";
 import type { ClientId } from "../clients";
-import { listStatuesSorted, searchStatuesLocal } from "./statuesCatalog";
+import { listStatuesSorted, searchStatues } from "./statuesCatalog";
+import { isSlugStarred } from "./localStarPreferences";
 import { VirusTotalBadge } from "./VirusTotalBadge";
 
 const PAGE_SIZE = 12;
@@ -33,16 +34,19 @@ export function MarketplacePage() {
 
     const trimmed = query.trim();
     const delay = immediate ? 0 : trimmed ? 280 : 0;
-    debounceTimer.current = window.setTimeout(() => {
+    debounceTimer.current = window.setTimeout(async () => {
       debounceTimer.current = null;
       if (id !== reqId.current) return;
       try {
-        const pool = trimmed ? searchStatuesLocal(trimmed) : listStatuesSorted();
+        const pool = trimmed ? await searchStatues(trimmed) : await listStatuesSorted();
+        if (id !== reqId.current) return;
         const page = trimmed ? pool.slice(0, 24) : pool.slice(0, PAGE_SIZE);
         setItems(page);
         setHasMore(!trimmed && pool.length > PAGE_SIZE);
       } catch (err) {
-        setError(err instanceof Error ? err.message : "failed to load");
+        if (id === reqId.current) {
+          setError(err instanceof Error ? err.message : "failed to load");
+        }
       } finally {
         if (id === reqId.current) setLoading(false);
       }
@@ -56,12 +60,12 @@ export function MarketplacePage() {
     };
   }, [runCatalogQuery]);
 
-  const loadMore = () => {
+  const loadMore = async () => {
     if (loadingMore || !hasMore || query.trim()) return;
     setLoadingMore(true);
     const nextSkip = skip + PAGE_SIZE;
     try {
-      const pool = listStatuesSorted();
+      const pool = await listStatuesSorted();
       const next = pool.slice(nextSkip, nextSkip + PAGE_SIZE);
       setItems((prev) => [...prev, ...next]);
       setHasMore(nextSkip + PAGE_SIZE < pool.length);
@@ -188,7 +192,7 @@ function StatueCard({ statue }: { statue: Statue }) {
         </div>
         <div className="statue-card-meta">
           <VirusTotalBadge slug={statue.slug} variant="card" />
-          <div className="statue-card-stars">★ {statue.stars}</div>
+          <div className="statue-card-stars">★ {statue.stars + (isSlugStarred(statue.slug) ? 1 : 0)}</div>
         </div>
       </div>
       <div className="statue-card-blurb">{blurb}</div>

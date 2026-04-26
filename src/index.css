@@ -14,6 +14,13 @@
   --accent-text: oklch(0.55 0.20 75);
   --good: oklch(0.66 0.13 155);
   --bad: oklch(0.62 0.20 25);
+
+  /* Code/terminal-style boxes (install commands, code blocks).
+     Light by default; flipped to dark inside body.dark. */
+  --code-bg: oklch(0.955 0.005 80);
+  --code-ink: oklch(0.22 0.01 80);
+  --code-muted: oklch(0.50 0.012 80);
+  --code-line: oklch(0.86 0.008 80);
   --donut-pink: oklch(0.62 0.20 350);
   --donut-pink-strong: oklch(0.50 0.24 350);
   --donut-s-red:    oklch(0.55 0.24 25);
@@ -274,11 +281,11 @@ a { color: inherit; text-decoration: none; }
   font-family: var(--mono);
   font-size: 11.5px;
   line-height: 1.45;
-  background: var(--bg-deep);
-  color: oklch(0.85 0.01 80);
+  background: var(--code-bg);
+  color: var(--code-ink);
   padding: 8px 12px;
   border-radius: 8px;
-  border: 1px solid var(--line);
+  border: 1px solid var(--code-line);
   margin: 0;
   white-space: pre-wrap;
   overflow-x: auto;
@@ -490,8 +497,9 @@ a { color: inherit; text-decoration: none; }
 
 .install-cmd {
   display: flex; align-items: stretch; gap: 10px;
-  background: var(--bg-deep);
-  color: oklch(0.92 0.008 80);
+  background: var(--code-bg);
+  color: var(--code-ink);
+  border: 1px solid var(--code-line);
   border-radius: 8px;
   padding: 8px 14px;
   min-height: 44px;
@@ -509,17 +517,17 @@ a { color: inherit; text-decoration: none; }
   display: flex; align-items: center; gap: 8px;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
-.install-cmd .prompt { color: oklch(0.55 0.01 80); }
+.install-cmd .prompt { color: var(--code-muted); }
 .install-cmd .cmd-text {
   flex: 1; min-width: 0;
   white-space: nowrap; overflow: hidden; text-overflow: ellipsis;
 }
 .install-cmd .arg { color: var(--accent); }
-.install-cmd .flag { color: oklch(0.55 0.01 80); }
+.install-cmd .flag { color: var(--code-muted); }
 .install-cmd .copy {
   background: transparent;
-  border: 1px solid oklch(0.32 0.012 80);
-  color: oklch(0.78 0.01 80);
+  border: 1px solid var(--code-line);
+  color: var(--code-muted);
   font-family: var(--mono);
   font-size: 10.5px;
   letter-spacing: 0.1em;
@@ -529,7 +537,10 @@ a { color: inherit; text-decoration: none; }
   cursor: pointer;
   flex-shrink: 0;
 }
-.install-cmd .copy:hover { background: oklch(0.22 0.012 80); color: oklch(0.96 0.005 80); }
+.install-cmd .copy:hover {
+  background: color-mix(in oklch, var(--code-ink) 8%, transparent);
+  color: var(--code-ink);
+}
 .install-cmd .copy.copied { color: var(--good); border-color: var(--good); }
 
 /* ---- Pinned scroll-scene section ---- */
@@ -1824,6 +1835,10 @@ body.dark {
   --line: oklch(0.28 0.01 80);
   --line-2: oklch(0.24 0.01 80);
   --accent-text: oklch(0.82 0.18 75);
+  --code-bg: oklch(0.10 0.012 80);
+  --code-ink: oklch(0.92 0.008 80);
+  --code-muted: oklch(0.55 0.01 80);
+  --code-line: oklch(0.32 0.012 80);
   --donut-pink: oklch(0.78 0.16 350);
   --donut-pink-strong: oklch(0.88 0.22 350);
   --donut-s-red:    oklch(0.70 0.22 25);
@@ -2560,19 +2575,19 @@ body.dark .vt-clean .vt-label { color: oklch(0.78 0.14 145); }
 .statue-install-row {
   display: flex; align-items: center; gap: 10px;
   padding: 14px 16px;
-  background: var(--bg-deep);
+  background: var(--code-bg);
   font-family: var(--mono);
   font-size: 13px;
   border-bottom-left-radius: 10px;
   border-bottom-right-radius: 10px;
 }
 .statue-install-prompt {
-  color: var(--ink-3);
+  color: var(--code-muted);
   user-select: none;
 }
 .statue-install-cmd {
   flex: 1;
-  color: oklch(0.92 0.01 80);
+  color: var(--code-ink);
   white-space: pre;
   overflow-x: auto;
 }
@@ -2732,15 +2747,15 @@ body.dark .tree-file.active { color: oklch(0.12 0.01 80); }
 .md-code {
   margin: 0 0 14px;
   padding: 14px 16px;
-  background: var(--bg-deep);
-  color: oklch(0.88 0.01 80);
+  background: var(--code-bg);
+  color: var(--code-ink);
   font-family: var(--mono);
   font-size: 12.5px;
   line-height: 1.55;
   border-radius: 8px;
   overflow-x: auto;
   white-space: pre;
-  border: 1px solid var(--line);
+  border: 1px solid var(--code-line);
 }
 .md-table {
   width: 100%;
@@ -2777,6 +2792,19 @@ body.dark .tree-file.active { color: oklch(0.12 0.01 80); }
 
 /* ---- New statue form ---- */
 .new-statue { padding: 80px 0 120px; }
+.new-statue-mode {
+  display: inline-flex; gap: 8px;
+  margin-top: 20px;
+  padding: 4px;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--bg-elev);
+}
+.new-statue-mode .btn {
+  padding: 6px 16px;
+  font-size: 12px;
+  border-radius: 999px;
+}
 .new-statue-form {
   display: flex; flex-direction: column; gap: 18px;
   margin-top: 24px;

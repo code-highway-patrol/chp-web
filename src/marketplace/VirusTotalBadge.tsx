@@ -1,5 +1,4 @@
 import rawResults from "./virustotal-results.json";
-import { cldFetch } from "../cloudinary/config";
 
 type ScanStats = {
   malicious: number;
@@ -34,9 +33,7 @@ function verdict(stats: ScanStats) {
   return { kind: "flagged" as const, total, flagged };
 }
 
-const VT_LOGO = cldFetch(
-  "https://www.google.com/s2/favicons?domain=virustotal.com&sz=128",
-);
+const VT_LOGO = "/virustotal.webp";
 
 export function VirusTotalBadge({
   slug,

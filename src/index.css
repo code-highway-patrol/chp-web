@@ -2306,11 +2306,14 @@ body.dark .theme-toggle .moon { display: none; }
 }
 .vt-badge:hover { border-color: var(--ink-2); color: var(--ink); }
 .vt-badge-logo {
-  width: 14px; height: 14px;
-  border-radius: 999px;
+  width: 20px; height: 20px;
+  border-radius: 5px;
   flex: none;
   display: block;
 }
+/* Logo ships as black-bg/white-glyph for light mode; flip on dark mode so it
+   reads white-bg/black-glyph against the dark surface. */
+body.dark .vt-badge-logo { filter: invert(1); }
 .vt-badge-text {
   display: inline-flex; align-items: center; gap: 5px;
   letter-spacing: 0.04em;
@@ -2331,7 +2334,7 @@ body.dark .theme-toggle .moon { display: none; }
   font-size: 11.5px;
   gap: 8px;
 }
-.vt-badge-detail .vt-badge-logo { width: 18px; height: 18px; }
+.vt-badge-detail .vt-badge-logo { width: 26px; height: 26px; border-radius: 6px; }
 .vt-badge-detail .vt-label { font-size: 10.5px; }
 .vt-badge-detail .vt-badge-text { gap: 8px; }
 .vt-prefix {

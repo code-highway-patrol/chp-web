@@ -5,6 +5,7 @@ import { ClientPicker } from "../ClientPicker";
 import { InstallCmd } from "../InstallCmd";
 import type { ClientId } from "../clients";
 import { listStatuesSorted, searchStatuesLocal } from "./statuesCatalog";
+import { VirusTotalBadge } from "./VirusTotalBadge";
 
 const PAGE_SIZE = 12;
 
@@ -185,7 +186,10 @@ function StatueCard({ statue }: { statue: Statue }) {
           )}
           {statue.title}
         </div>
-        <div className="statue-card-stars">★ {statue.stars}</div>
+        <div className="statue-card-meta">
+          <VirusTotalBadge slug={statue.slug} variant="card" />
+          <div className="statue-card-stars">★ {statue.stars}</div>
+        </div>
       </div>
       <div className="statue-card-blurb">{blurb}</div>
       {isLawPack && lawCount > 0 && (

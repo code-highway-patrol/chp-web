@@ -5,6 +5,8 @@ import { getStatueBySlug } from "./statuesCatalog";
 import { isSlugStarred, toggleSlugStarred } from "./localStarPreferences";
 import { ClientPicker } from "../ClientPicker";
 import type { ClientId } from "../clients";
+import { VirusTotalBadge } from "./VirusTotalBadge";
+import { Markdown } from "./Markdown";
 
 function installCommand(client: ClientId, slug: string): string {
   if (client === "claude") return `/chp install ${slug}`;
@@ -134,6 +136,7 @@ export function StatueDetailPage() {
               </span>
               <span>{statue.stars}</span>
             </button>
+            <VirusTotalBadge slug={statue.slug} variant="detail" />
           </div>
           {statue.tags.length > 0 && (
             <div className="detail-tags">
@@ -452,6 +455,13 @@ function FileBody({ file }: { file: StatueFile }) {
       /* keep raw if not parseable */
     }
     return <pre className="file-body file-json">{pretty}</pre>;
+  }
+  if (file.path.endsWith(".md")) {
+    return (
+      <div className="file-body file-md">
+        <Markdown source={file.content} />
+      </div>
+    );
   }
   return <pre className="file-body">{file.content}</pre>;
 }

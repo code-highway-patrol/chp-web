@@ -31,12 +31,12 @@
     "slug": "async-timeout-required",
     "sha256": "31818e63dbda76b6b8243c0862afa145e315843f2d022bc1726ab0b3ff2fc750",
     "contentHash": "8d7c88a1ffd2e79f14a7537be1a105a3ab78dc4e4d4f850d9279becd126adca8",
-    "scannedAt": "2026-04-26T06:08:45.758Z",
+    "scannedAt": "2026-04-26T06:27:15.862Z",
     "stats": {
       "malicious": 0,
       "suspicious": 0,
       "harmless": 0,
-      "undetected": 0,
+      "undetected": 61,
       "timeout": 0
     },
     "permalink": "https://www.virustotal.com/gui/file/31818e63dbda76b6b8243c0862afa145e315843f2d022bc1726ab0b3ff2fc750"
@@ -59,12 +59,12 @@
     "slug": "no-any-typescript",
     "sha256": "611e07fe5eb53d946510e7c172198f33cc2b625d9cde37c9183e375ffacd8ef9",
     "contentHash": "72bc771141cd50efbb77f3e94c838b6059218b4b597dddf998b6c6b620de4394",
-    "scannedAt": "2026-04-26T06:09:11.181Z",
+    "scannedAt": "2026-04-26T06:27:17.671Z",
     "stats": {
       "malicious": 0,
       "suspicious": 0,
       "harmless": 0,
-      "undetected": 0,
+      "undetected": 61,
       "timeout": 0
     },
     "permalink": "https://www.virustotal.com/gui/file/611e07fe5eb53d946510e7c172198f33cc2b625d9cde37c9183e375ffacd8ef9"
@@ -87,13 +87,13 @@
     "slug": "semantic-html-nav",
     "sha256": "3b8ae8f891584f82d93c4d26742a1c73367082d21217a19cfbcb5478f2e6059b",
     "contentHash": "459559512e9b7763e81b789653d41fee0447c6f7f1a73afb2c7268d2deec6bc3",
-    "scannedAt": "2026-04-26T06:10:24.225Z",
+    "scannedAt": "2026-04-26T06:27:19.500Z",
     "stats": {
       "malicious": 0,
       "suspicious": 0,
       "harmless": 0,
-      "undetected": 0,
-      "timeout": 0
+      "undetected": 60,
+      "timeout": 1
     },
     "permalink": "https://www.virustotal.com/gui/file/3b8ae8f891584f82d93c4d26742a1c73367082d21217a19cfbcb5478f2e6059b"
   },
@@ -129,13 +129,13 @@
     "slug": "responsive-touch-targets",
     "sha256": "51b8901705c6d532e1195e7c4c60050ea2531af1bfa1289c9b22fb674138f6eb",
     "contentHash": "1053bada21a00557c5bd49366af82bf47e81ea1280153a8c83ebbf05d35b9810",
-    "scannedAt": "2026-04-26T06:12:10.715Z",
+    "scannedAt": "2026-04-26T06:27:21.303Z",
     "stats": {
       "malicious": 0,
       "suspicious": 0,
       "harmless": 0,
-      "undetected": 0,
-      "timeout": 0
+      "undetected": 58,
+      "timeout": 2
     },
     "permalink": "https://www.virustotal.com/gui/file/51b8901705c6d532e1195e7c4c60050ea2531af1bfa1289c9b22fb674138f6eb"
   },

@@ -9,7 +9,7 @@ import { VirusTotalBadge } from "./VirusTotalBadge";
 import { Markdown } from "./Markdown";
 
 function installCommand(client: ClientId, slug: string): string {
-  if (client === "claude") return `/chp install ${slug}`;
+  if (client === "claude") return `/chp:install ${slug}`;
   return `chp install ${slug}`;
 }
 
@@ -134,7 +134,7 @@ export function StatueDetailPage() {
               <span className="detail-star-glyph">
                 {statue.hasStarred ? "★" : "☆"}
               </span>
-              <span>{statue.stars}</span>
+              <span>{statue.stars + (statue.hasStarred ? 1 : 0)}</span>
             </button>
             <VirusTotalBadge slug={statue.slug} variant="detail" />
           </div>

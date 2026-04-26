@@ -1,9 +1,7 @@
 {
   "$schema": "https://openapi.vercel.sh/vercel.json",
-  "framework": "vite",
-  "installCommand": "bun install",
   "buildCommand": "bun run build",
-  "devCommand": "bun run dev --port $PORT",
+  "installCommand": "bun install",
   "rewrites": [
     { "source": "/marketplace", "destination": "/index.html" },
     { "source": "/marketplace/:path*", "destination": "/index.html" },

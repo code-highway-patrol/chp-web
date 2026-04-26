@@ -1,10 +1,19 @@
 import { useEffect, useRef, useState } from "react";
+import {
+  prepareWithSegments,
+  walkLineRanges,
+  materializeLineRange,
+} from "@chenglou/pretext";
 
 // 3D spinning donut, riffing on Andy Sloane's classic donut.c. A torus is
-// sampled in (theta, phi), rotated by two angles, projected to the grid, then
-// rasterized through a luminance ramp. The frosting/dough split tracks the
-// torus's local upper/lower hemisphere, so it spins with the donut. Sprinkles
-// are fixed (theta, phi) points on the frosted face that ride along.
+// sampled in (theta, phi), pitch/yaw rotated, projected to the grid, then
+// rasterized through a brightness-gated character pick. The visible (lit)
+// surface is textured with real bash from chp/core/dispatcher.sh so the
+// donut spins with CHP source code wrapped onto its skin. Pretext handles
+// font-width sanity (filtering zero-width chars) and per-row layout
+// normalization, matching the rest of the site's ASCII components.
+
+const FONT = '13px "Geist Mono", ui-monospace, Menlo, monospace';
 
 const COLS = 62;
 const ROWS = 36;
@@ -15,17 +24,75 @@ const K2 = 5.0;
 const K1 = 34;
 const ASPECT = 14 / 7.5;
 
-const THETA_STEP = 0.10;
+const THETA_STEP = 0.1;
 const PHI_STEP = 0.025;
 
 const SPIN_A_RATE = 0.55;
 const SPIN_B_RATE = 0.95;
 
-const RAMP = ".,-~:;=!*#$@";
-
 const REPULSE_R = 8.5;
 const REPULSE_K = 12;
 const REPULSE_FADE_PER_SEC = 6;
+
+// Real bash, lifted from chp/core/dispatcher.sh.
+const SOURCE_RAW = [
+  '#!/usr/bin/env bash',
+  'SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"',
+  'source "$SCRIPT_DIR/common.sh"',
+  'source "$SCRIPT_DIR/hook-registry.sh"',
+  'source "$SCRIPT_DIR/verifier.sh"',
+  'source "$SCRIPT_DIR/check-runner.sh"',
+  'source "$SCRIPT_DIR/law-mutate.sh"',
+  'get_hook_context() {',
+  '  local hook_type="$1"',
+  '  case "$hook_type" in',
+  '    pre-commit) echo "git diff --cached --name-only" ;;',
+  '    pre-push)   echo "git diff --name-only HEAD @{u}" ;;',
+  '    commit-msg) echo ".git/COMMIT_EDITMSG" ;;',
+  '    pre-tool)   echo "tool_context" ;;',
+  '  esac',
+  '}',
+  '_record_check_failures() {',
+  '  local law_name="$1" stdout="$2"',
+  '  while IFS= read -r line; do',
+  '    check_id=$(echo "$line" | jq -r ".check_id")',
+  '    status=$(echo "$line" | jq -r ".status")',
+  '    if [[ "$status" == "FAIL" ]]; then',
+  '      record_failure "$law_name" "$check_id"',
+  '    fi',
+  '  done <<< "$stdout"',
+  '}',
+]
+  .join(" ")
+  .replace(/\s+/g, " ")
+  .trim();
+
+// Drop any chars pretext reports as zero-width — those don't render as a
+// single cell in the chosen font and would break alignment. Spaces stay so
+// the donut surface can rest on whitespace where the source has it.
+function buildSourceString(font: string): string {
+  let out = "";
+  for (const ch of SOURCE_RAW) {
+    if (ch === " ") {
+      out += ch;
+      continue;
+    }
+    const prepared = prepareWithSegments(ch, font);
+    const w = prepared.widths[0] ?? 0;
+    if (w > 0) out += ch;
+  }
+  return out || SOURCE_RAW;
+}
+
+function pretextRoundTrip(rawRow: string, font: string): string {
+  if (!rawRow.trim()) return rawRow;
+  const prepared = prepareWithSegments(rawRow, font, { whiteSpace: "pre-wrap" });
+  let materialized = "";
+  walkLineRanges(prepared, 99999, (line) => {
+    if (!materialized) materialized = materializeLineRange(prepared, line).text;
+  });
+  return materialized || rawRow;
+}
 
 const SPRINKLE_DEFS: { ch: string; klass: string }[] = [
   { ch: "/", klass: "donut-s-red" },
@@ -46,8 +113,6 @@ type Sprinkle = {
 function makeSprinkles(n: number): Sprinkle[] {
   const out: Sprinkle[] = [];
   for (let i = 0; i < n; i++) {
-    // Frosted face is the upper torus hemisphere: sin(theta) > 0.
-    // Concentrate near the crown (theta near pi/2) for a clean look.
     const theta = 0.22 * Math.PI + Math.random() * 0.56 * Math.PI;
     const phi = Math.random() * 2 * Math.PI;
     const def = SPRINKLE_DEFS[Math.floor(Math.random() * SPRINKLE_DEFS.length)];
@@ -60,6 +125,7 @@ type Cell = { ch: string; klass: string };
 
 export function Donut() {
   const [rows, setRows] = useState<Cell[][]>([]);
+  const [source, setSource] = useState<string>(SOURCE_RAW);
   const artRef = useRef<HTMLDivElement>(null);
   const stateRef = useRef({
     A: 0.4,
@@ -72,6 +138,15 @@ export function Donut() {
   });
 
   useEffect(() => {
+    const calibrate = () => setSource(buildSourceString(FONT));
+    calibrate();
+    if (document.fonts?.ready) void document.fonts.ready.then(calibrate);
+  }, []);
+
+  useEffect(() => {
+    if (!source) return;
+    const sourceLen = source.length;
+
     let raf = 0;
     let last = performance.now();
     const N = COLS * ROWS;
@@ -88,7 +163,8 @@ export function Donut() {
       st.A += SPIN_A_RATE * dt;
       st.B += SPIN_B_RATE * dt;
       const target = st.hoverActive ? 1 : 0;
-      st.repulse += (target - st.repulse) * Math.min(1, dt * REPULSE_FADE_PER_SEC);
+      st.repulse +=
+        (target - st.repulse) * Math.min(1, dt * REPULSE_FADE_PER_SEC);
 
       charBuf.fill(" ");
       klassBuf.fill("");
@@ -104,23 +180,23 @@ export function Donut() {
       const repulseStr = REPULSE_K * st.repulse;
       const repulseR2 = REPULSE_R * REPULSE_R;
 
-      for (let theta = 0; theta < TWO_PI; theta += THETA_STEP) {
+      let tIdx = 0;
+      for (let theta = 0; theta < TWO_PI; theta += THETA_STEP, tIdx++) {
         const cT = Math.cos(theta);
         const sT = Math.sin(theta);
         const circleX = R2 + R1 * cT;
         const ringZ = R1 * sT;
         const upperHalf = sT > 0;
 
-        for (let phi = 0; phi < TWO_PI; phi += PHI_STEP) {
+        let pIdx = 0;
+        for (let phi = 0; phi < TWO_PI; phi += PHI_STEP, pIdx++) {
           const cP = Math.cos(phi);
           const sP = Math.sin(phi);
 
-          // Local torus point: ring lies in XY plane, axis along Z.
           const px = circleX * cP;
           const py = circleX * sP;
           const pz = ringZ;
 
-          // Pitch by A around X, then yaw by B around Y (donut.c convention).
           const y1 = py * cosA - pz * sinA;
           const z1 = py * sinA + pz * cosA;
           const x2 = px * cosB + z1 * sinB;
@@ -150,28 +226,36 @@ export function Donut() {
           const idx = cy * COLS + cx;
           if (ooz <= zbuf[idx]) continue;
 
-          // Surface normal in local frame, rotated identically to the point.
           const nly = cT * sP;
           const nlz = sT;
           const ny1 = nly * cosA - nlz * sinA;
           const nz1 = nly * sinA + nlz * cosA;
           const nz2 = -(cT * cP) * sinB + nz1 * cosB;
-          // Light direction (0, 1, -1) / sqrt(2).
           const L = (ny1 - nz2) * INV_SQRT2;
           if (L <= 0) continue;
 
+          // Brightness-gated char: dim rim falls back to a small ramp, lit
+          // surface samples the bash source so the donut "wears" CHP code.
+          // Code flows along phi (the major ring) so consecutive cells along
+          // the donut's long axis are consecutive source chars, leaving
+          // recognizable runs of bash visible on the surface.
+          let ch: string;
+          if (L < 0.12) ch = ".";
+          else if (L < 0.22) ch = ",";
+          else if (L < 0.32) ch = "~";
+          else {
+            const codeIdx = (tIdx * 7 + pIdx) % sourceLen;
+            const sc = source[codeIdx];
+            ch = sc === " " || !sc ? ":" : sc;
+          }
+
           zbuf[idx] = ooz;
-          const ridx = Math.min(
-            RAMP.length - 1,
-            Math.max(0, Math.floor(L * RAMP.length)),
-          );
-          charBuf[idx] = RAMP[ridx];
+          charBuf[idx] = ch;
           klassBuf[idx] = upperHalf ? "donut-frosting" : "donut-dough";
         }
       }
 
-      // Sprinkle overlay — only when on a front-facing surface point that the
-      // body donut also rendered (zbuffer match within tolerance).
+      // Sprinkles overlay — front-facing only, must land on a body cell.
       for (const s of st.sprinkles) {
         const cT = Math.cos(s.theta);
         const sT = Math.sin(s.theta);
@@ -192,10 +276,8 @@ export function Donut() {
         const nly = cT * sP;
         const nlz = sT;
         const nz1 = nly * sinA + nlz * cosA;
-        const nz2_world = -(cT * cP) * sinB + nz1 * cosB;
-        // Camera looks toward -Z; front-facing means normal . (0,0,-1) > 0
-        // i.e. nz2 < 0. Reject back-facing sprinkles.
-        if (nz2_world >= 0) continue;
+        const nz2 = -(cT * cP) * sinB + nz1 * cosB;
+        if (nz2 >= 0) continue;
 
         let xp = COLS / 2 + K1 * ooz * x2;
         let yp = ROWS / 2 - (K1 * ooz * y1) / ASPECT;
@@ -224,7 +306,20 @@ export function Donut() {
         const cells: Cell[] = new Array(COLS);
         const rowBase = y * COLS;
         for (let x = 0; x < COLS; x++) {
-          cells[x] = { ch: charBuf[rowBase + x], klass: klassBuf[rowBase + x] };
+          cells[x] = {
+            ch: charBuf[rowBase + x],
+            klass: klassBuf[rowBase + x],
+          };
+        }
+        // Pretext round-trip on the plain text so the row's measured layout
+        // matches what the rest of the site uses; carry chars back if the
+        // measured length lines up cell-for-cell.
+        const plain = cells.map((c) => c.ch).join("");
+        const measured = pretextRoundTrip(plain, FONT);
+        if (measured.length === cells.length) {
+          for (let i = 0; i < cells.length; i++) {
+            cells[i] = { ch: measured[i], klass: cells[i].klass };
+          }
         }
         out[y] = cells;
       }
@@ -233,7 +328,7 @@ export function Donut() {
     };
     raf = requestAnimationFrame(tick);
     return () => cancelAnimationFrame(raf);
-  }, []);
+  }, [source]);
 
   const onMove = (e: React.MouseEvent<HTMLDivElement>) => {
     const el = artRef.current;

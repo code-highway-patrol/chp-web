@@ -2469,3 +2469,81 @@ body.dark .theme-toggle .moon { display: none; }
   }
   .nav-user-menu { background: var(--bg-elev); }
 }
+
+/* ---- Mobile responsive overrides ---- */
+@media (max-width: 820px) {
+  .wrap { padding: 0 20px; }
+  .brand-name { display: none; }
+  .nav-cta .btn { padding: 0 14px; font-size: 12px; }
+  .nav-cta .btn .arrow { display: none; }
+  .install-row { flex-direction: column; align-items: stretch; }
+  .install-row .install-cmd { min-width: 0; }
+
+  .donut-art {
+    font-size: 10px;
+    transform: none;
+    margin: 0 auto;
+    width: max-content;
+    max-width: 100%;
+  }
+  .donut-row { font-size: 10px; line-height: 11px; }
+  .cuffs-card { min-height: auto; padding: 0; justify-content: center; }
+}
+
+@media (max-width: 640px) {
+  .nav-links { display: none; }
+  .nav-cta { gap: 6px; }
+  .nav-cta .btn { display: none; }
+  .nav { padding: 0; }
+  .nav-inner { padding-top: 14px; padding-bottom: 14px; }
+
+  .hero { padding: 56px 0 32px; }
+  .hero h1 { font-size: clamp(36px, 9vw, 48px); margin: 16px 0 18px; }
+  .lede { font-size: 15px; }
+
+  .donut-art { font-size: 8px; }
+  .donut-row { font-size: 8px; line-height: 9px; }
+
+  .market { padding: 56px 0 80px; }
+  .market-title { font-size: clamp(28px, 7.5vw, 40px); }
+  .market-search { flex-direction: column; }
+  .market-search-wrap { width: 100%; }
+  .market-publish { width: 100%; justify-content: center; }
+  .market-search-input { padding: 0 90px 0 14px; font-size: 14px; }
+  .market-search-kbd { font-size: 10px; padding: 3px 6px; }
+  .market-install { flex-direction: column; }
+  .market-install .client-picker,
+  .market-install .install-cmd { min-width: 0; width: 100%; }
+
+  .market-grid { grid-template-columns: 1fr; gap: 14px; }
+  .statue-card { padding: 18px; }
+
+  .detail { padding: 56px 0 80px; }
+  .detail-title { font-size: clamp(26px, 7vw, 36px); }
+  .detail-card { max-width: 100%; }
+  .detail-body { font-size: 12px; padding: 16px; overflow-x: auto; }
+  .detail-meta { flex-wrap: wrap; row-gap: 4px; }
+
+  .new-statue { padding: 56px 0 80px; }
+  .new-statue-form { max-width: 100%; }
+
+  .auth-page { padding: 48px 20px; min-height: calc(100vh - 64px); }
+  .auth-card { max-width: 100%; }
+  .auth-title { font-size: clamp(26px, 7vw, 36px); }
+
+  .modal-card { padding: 0; }
+  .modal-card-inner { padding: 32px 20px; }
+  .modal-title { font-size: clamp(28px, 7vw, 40px); }
+  .modal-installer { flex-direction: column; align-items: stretch; }
+  .modal-installer .client-picker,
+  .modal-installer .install-cmd { min-width: 0; width: 100%; }
+  .modal-codeblock { font-size: 12px; }
+  .modal-foot { flex-direction: column; gap: 12px; align-items: flex-start; }
+}
+
+@media (max-width: 420px) {
+  .nav-cta .nav-signin { padding: 6px 8px; font-size: 11px; }
+  .donut-art { font-size: 7px; }
+  .donut-row { font-size: 7px; line-height: 8px; }
+  .install-cmd .cmd-text { font-size: 11px; }
+}

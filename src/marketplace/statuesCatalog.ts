@@ -12,6 +12,18 @@ function lawHay(s: Statue): string {
   return typeof lj === "string" ? lj : JSON.stringify(lj);
 }
 
+function packHay(s: Statue): string {
+  if (!s.files || s.files.length === 0) return "";
+  const lawIntents = (s.laws ?? [])
+    .map((l) => `${l.name} ${l.intent ?? ""}`)
+    .join(" ");
+  const guidance = s.files
+    .filter((f) => f.path.endsWith("/guidance.md"))
+    .map((f) => f.content)
+    .join("\n");
+  return `${lawIntents}\n${guidance}`;
+}
+
 export function listStatuesSorted(): Statue[] {
   return sorted;
 }
@@ -20,8 +32,16 @@ export function searchStatuesLocal(query: string): Statue[] {
   const q = query.trim().toLowerCase();
   if (!q) return sorted;
   return sorted.filter((s) => {
-    const hay =
-      `${s.title}\n${s.body}\n${lawHay(s)}\n${s.tags.join(" ")}`.toLowerCase();
+    const hay = [
+      s.title,
+      s.description ?? "",
+      s.body ?? "",
+      lawHay(s),
+      packHay(s),
+      s.tags.join(" "),
+    ]
+      .join("\n")
+      .toLowerCase();
     return hay.includes(q);
   });
 }

@@ -151,14 +151,36 @@ export function MarketplacePage() {
 }
 
 function StatueCard({ statue }: { statue: Statue }) {
-  const blurb = firstParagraph(statue);
+  const isLawPack = Array.isArray(statue.files) && statue.files.length > 0;
+  const lawCount = isLawPack ? statue.laws?.length ?? 0 : 0;
+  const blurb =
+    statue.description ||
+    firstParagraph(statue) ||
+    (isLawPack && statue.laws
+      ? statue.laws
+          .slice(0, 3)
+          .map((l) => l.name)
+          .join(", ")
+      : "");
+
   return (
-    <Link className="statue-card" to={`/marketplace/${statue.slug}`}>
+    <Link
+      className={`statue-card${isLawPack ? " statue-card-collection" : ""}`}
+      to={`/marketplace/${statue.slug}`}
+    >
       <div className="statue-card-head">
-        <div className="statue-card-title">{statue.title}</div>
+        <div className="statue-card-title">
+          {isLawPack && <span className="statue-card-folder">📁</span>}
+          {statue.title}
+        </div>
         <div className="statue-card-stars">★ {statue.stars}</div>
       </div>
       <div className="statue-card-blurb">{blurb}</div>
+      {isLawPack && lawCount > 0 && (
+        <div className="statue-card-count">
+          {lawCount} {lawCount === 1 ? "law" : "laws"}
+        </div>
+      )}
       <div className="statue-card-foot">
         <div className="statue-card-tags">
           {statue.tags.slice(0, 3).map((t) => (
@@ -174,9 +196,8 @@ function StatueCard({ statue }: { statue: Statue }) {
 }
 
 function firstParagraph(statue: Statue): string {
-  const lines = statue.body
-    .split("\n")
-    .filter((l) => l.trim() && !l.startsWith("#"));
+  const body = statue.body ?? "";
+  const lines = body.split("\n").filter((l) => l.trim() && !l.startsWith("#"));
   const fromBody = lines
     .slice(0, 3)
     .join(" ")
